@@ -67,8 +67,10 @@ xcodebuild -project DashMirror.xcodeproj -scheme DashMirror \
 - UI strings: **English in code** (source language, also the fallback for every other language); the German
   translation goes into `Shared/Localizable.xcstrings` (one catalog for app and extension – a second
   `Localizable` catalog in the same target collides). Info.plist texts: `DashMirror/InfoPlist.xcstrings`.
-  Every new UI string needs its German entry; computed strings use `String(localized:)`, numbers in the UI
-  `String(format:locale: .current, …)`. Check: clean build, then compare the `.stringsdata` keys with the catalog.
+  Every new UI string needs its German entry. The language switches live (`Shared/AppLanguage.swift`): computed
+  strings use `String(localized: "…", bundle: .ui)`, numbers `String(format:locale: .ui, …)`; SwiftUI literals follow
+  `.environment(\.locale)`, views that compute strings read `@Environment(\.locale)` so they redraw; UIKit reads
+  `LanguageStore.shared.code` inside its observation. Never set `AppleLanguages`. Check: clean build, then compare the `.stringsdata` keys with the catalog.
 - Code comments and log lines in German with ae/oe/ue; logs keep a fixed number format (no locale).
 - Public docs (README, this file) in English.
 - Comments explain *why* and record measurements with a date (e.g. "gemessen am 23.11.2026").

@@ -244,12 +244,12 @@
         }
       }
     },
-    "Follows the iPhone language unless you pick one here." : {
+    "Follows the iPhone language unless you pick one here. Changes apply immediately, in the car as well." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Folgt der iPhone-Sprache, außer du wählst hier eine aus."
+            "value" : "Folgt der iPhone-Sprache, außer du wählst hier eine aus. Gilt sofort, auch im Auto."
           }
         }
       }
@@ -630,16 +630,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "System"
-          }
-        }
-      }
-    },
-    "Takes effect after restarting the app: close it in the app switcher and open it again." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wird nach einem Neustart der App übernommen: im App-Umschalter schließen und neu öffnen."
           }
         }
       }

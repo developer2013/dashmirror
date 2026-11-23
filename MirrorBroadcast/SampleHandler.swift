@@ -24,7 +24,7 @@ final class SampleHandler: RPBroadcastSampleHandler {
         MirrorLog.write("=== Uebertragung gestartet – \(settings), Speicher \(MirrorMemory.footprintMB()) MB ===")
         guard let streamer = MirrorStreamer(settings: settings, source: .screen) else {
             finishBroadcastWithError(NSError(domain: "DashMirror", code: 1, userInfo: [
-                NSLocalizedDescriptionKey: String(localized: "Shared container missing – check the App Group in the entitlements."),
+                NSLocalizedDescriptionKey: String(localized: "Shared container missing – check the App Group in the entitlements.", bundle: .ui),
             ]))
             return
         }

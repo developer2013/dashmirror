@@ -16,10 +16,14 @@ struct ContentView: View {
     @Environment(MirrorHub.self) private var hub
     @Environment(\.scenePhase) private var scenePhase
     @State private var holdsDrivingMonitor = false
-    @State private var language = AppLanguage.selected
+    @Environment(LanguageStore.self) private var language
+    /// Abhaengigkeit: Bei Sprachwechsel werden die berechneten Texte (Quelle, CarPlay …) neu erzeugt.
+    @Environment(\.locale) private var locale
 
     var body: some View {
         @Bindable var hub = hub
+        @Bindable var language = language
+        let _ = locale
         NavigationStack {
             Form {
                 Section {
@@ -38,13 +42,13 @@ struct ContentView: View {
 
                 Section("Receiving") {
                     LabeledContent("Source", value: sourceText)
-                    LabeledContent("Frame rate", value: String(format: String(localized: "%.0f fps"), locale: .current, hub.framesPerSecond))
-                    LabeledContent("Data rate", value: String(format: "%.1f Mbit/s", locale: .current, hub.megabitsPerSecond))
-                    LabeledContent("Latency to the app", value: hub.latencyMs.map { String(format: "%.0f ms", locale: .current, $0) } ?? "–")
+                    LabeledContent("Frame rate", value: String(format: String(localized: "%.0f fps", bundle: .ui), locale: .ui, hub.framesPerSecond))
+                    LabeledContent("Data rate", value: String(format: "%.1f Mbit/s", locale: .ui, hub.megabitsPerSecond))
+                    LabeledContent("Latency to the app", value: hub.latencyMs.map { String(format: "%.0f ms", locale: .ui, $0) } ?? "–")
                     LabeledContent("Resolution", value: hub.frameSize == .zero ? "–"
                                    : "\(Int(hub.frameSize.width)) × \(Int(hub.frameSize.height))")
                     if hub.droppedPerSecond > 0 {
-                        LabeledContent("Dropped", value: String(format: "%.1f/s", locale: .current, hub.droppedPerSecond))
+                        LabeledContent("Dropped", value: String(format: "%.1f/s", locale: .ui, hub.droppedPerSecond))
                     }
                     if let error = hub.receiverError {
                         Label(error, systemImage: "exclamationmark.triangle.fill").foregroundStyle(.orange)
@@ -58,7 +62,7 @@ struct ContentView: View {
                     }
                     Toggle("Cut off black borders", isOn: $hub.autoCrop)
                     VStack(alignment: .leading, spacing: 4) {
-                        LabeledContent("Zoom", value: String(format: "%.1f×", locale: .current, hub.zoom))
+                        LabeledContent("Zoom", value: String(format: "%.1f×", locale: .ui, hub.zoom))
                         Slider(value: $hub.zoom, in: 1...3, step: 0.05)
                     }
                     if hub.zoom > 1.001 || hub.panFraction != .zero {
@@ -107,19 +111,14 @@ struct ContentView: View {
                 }
 
                 Section {
-                    Picker("App language", selection: $language) {
+                    Picker("App language", selection: $language.selection) {
                         ForEach(AppLanguage.allCases) { Text(verbatim: $0.title).tag($0) }
                     }
                 } header: {
                     Text("Language")
                 } footer: {
-                    if language != AppLanguage.atLaunch {
-                        Text("Takes effect after restarting the app: close it in the app switcher and open it again.")
-                    } else {
-                        Text("Follows the iPhone language unless you pick one here.")
-                    }
+                    Text("Follows the iPhone language unless you pick one here. Changes apply immediately, in the car as well.")
                 }
-                .onChange(of: language) { _, new in AppLanguage.select(new) }
 
                 Section {
                     NavigationLink("Log") { LogView() }
@@ -140,25 +139,27 @@ struct ContentView: View {
     }
 
     private var sourceText: String {
-        guard hub.sourceConnected else { return String(localized: "none") }
+        guard hub.sourceConnected else { return String(localized: "none", bundle: .ui) }
         switch hub.source {
-        case .screen: return String(localized: "iPhone screen")
-        case .testPattern: return String(localized: "Test pattern")
-        case nil: return String(localized: "connected")
+        case .screen: return String(localized: "iPhone screen", bundle: .ui)
+        case .testPattern: return String(localized: "Test pattern", bundle: .ui)
+        case nil: return String(localized: "connected", bundle: .ui)
         }
     }
 
     private var carText: String {
-        guard hub.carConnected else { return String(localized: "not connected") }
+        guard hub.carConnected else { return String(localized: "not connected", bundle: .ui) }
         let size = hub.carPixelSize == .zero ? "" : " · \(Int(hub.carPixelSize.width)) × \(Int(hub.carPixelSize.height)) px"
-        return (hub.carForeground ? String(localized: "connected") : String(localized: "in background")) + size
+        return (hub.carForeground ? String(localized: "connected", bundle: .ui) : String(localized: "in background", bundle: .ui)) + size
     }
 }
 
 private struct StatusHeader: View {
     @Environment(MirrorHub.self) private var hub
+    @Environment(\.locale) private var locale
 
     var body: some View {
+        let _ = locale
         HStack(spacing: 14) {
             Image(systemName: symbol)
                 .font(.system(size: 30, weight: .semibold))
@@ -176,20 +177,22 @@ private struct StatusHeader: View {
     private var symbol: String { running ? "dot.radiowaves.left.and.right" : "rectangle.on.rectangle" }
     private var color: Color { running ? .green : .secondary }
     private var title: String {
-        guard running else { return String(localized: "Ready") }
-        return hub.testPatternRunning ? String(localized: "Test pattern running") : String(localized: "Mirroring")
+        guard running else { return String(localized: "Ready", bundle: .ui) }
+        return hub.testPatternRunning ? String(localized: "Test pattern running", bundle: .ui) : String(localized: "Mirroring", bundle: .ui)
     }
     private var subtitle: String {
-        let car = hub.carConnected ? String(localized: "Car connected") : String(localized: "No car connected")
-        if hub.carConnected, hub.driving.isLocked { return car + " · " + String(localized: "Driving lock active") }
+        let car = hub.carConnected ? String(localized: "Car connected", bundle: .ui) : String(localized: "No car connected", bundle: .ui)
+        if hub.carConnected, hub.driving.isLocked { return car + " · " + String(localized: "Driving lock active", bundle: .ui) }
         return car
     }
 }
 
 private struct DrivingSection: View {
     let monitor: DrivingLockMonitor
+    @Environment(\.locale) private var locale
 
     var body: some View {
+        let _ = locale
         Section {
             LabeledContent("Picture in the car") {
                 if monitor.isLocked {
@@ -199,10 +202,10 @@ private struct DrivingSection: View {
                 }
             }
             LabeledContent("Speed",
-                           value: monitor.signals.speedKmh.map { String(format: "%.0f km/h", locale: .current, $0) } ?? String(localized: "unknown"))
+                           value: monitor.signals.speedKmh.map { String(format: "%.0f km/h", locale: .ui, $0) } ?? String(localized: "unknown", bundle: .ui))
             LabeledContent("Motion", value: motionText)
             LabeledContent("Stationary for",
-                           value: monitor.signals.secondsSinceMoving.map { String(format: "%.0f s", locale: .current, $0) } ?? "–")
+                           value: monitor.signals.secondsSinceMoving.map { String(format: "%.0f s", locale: .ui, $0) } ?? "–")
             LabeledContent("Location", value: DrivingLockMonitor.describe(monitor.authorization))
             if monitor.authorization == .notDetermined {
                 Button("Allow location") { monitor.requestPermission() }
@@ -219,10 +222,10 @@ private struct DrivingSection: View {
     }
 
     private var motionText: String {
-        guard monitor.motionAvailable else { return String(localized: "not available") }
+        guard monitor.motionAvailable else { return String(localized: "not available", bundle: .ui) }
         let s = monitor.signals
-        if s.automotive { return s.stationary ? String(localized: "in car, standing") : String(localized: "in car, moving") }
-        return s.stationary ? String(localized: "standing") : "–"
+        if s.automotive { return s.stationary ? String(localized: "in car, standing", bundle: .ui) : String(localized: "in car, moving", bundle: .ui) }
+        return s.stationary ? String(localized: "standing", bundle: .ui) : "–"
     }
 }
 

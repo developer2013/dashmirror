@@ -18,7 +18,7 @@ A fail-closed driving lock hides the picture while the car is moving.
 | Works | iPhone 16 Pro, iOS 27.0.1, with Apple's CarPlay Simulator: real screen mirroring shows up in the CarPlay window, touches on the car screen arrive. |
 | Not tested yet | A real car. **iOS 27.2 and later** – Apple cracked down on CarPlay video workarounds in 27.2 (App Store removals); whether this approach is affected is unknown. |
 | Driving lock | ⚠️ The rule in `DashMirror/Driving/DrivingPolicy.swift` is still a placeholder that **always locks**. Write your rule before use. |
-| UI language | English and German. Follows the iPhone language; pick one in the app under *Language* (applies after restarting the app). |
+| UI language | English and German. Follows the iPhone language; pick one in the app under *Language* – switches immediately, on the car screen too. |
 
 ## How it works
 

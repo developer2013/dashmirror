@@ -19,10 +19,15 @@ struct DashMirrorApp: App {
         MirrorHub.shared.start()
     }
 
+    @State private var language = LanguageStore.shared
+
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environment(MirrorHub.shared)
+                .environment(language)
+                // Sprachwahl wirkt sofort: SwiftUI schlaegt feste Texte in dieser Locale nach.
+                .environment(\.locale, language.locale)
                 .preferredColorScheme(.dark)
         }
     }

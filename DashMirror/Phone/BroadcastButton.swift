@@ -13,12 +13,14 @@ import SwiftUI
 
 struct BroadcastButton: View {
     let running: Bool
+    @Environment(\.locale) private var locale
 
     var body: some View {
+        let _ = locale
         Button {
             BroadcastPicker.shared.show()
         } label: {
-            Label(running ? String(localized: "Stop mirroring") : String(localized: "Start mirroring"),
+            Label(running ? String(localized: "Stop mirroring", bundle: .ui) : String(localized: "Start mirroring", bundle: .ui),
                   systemImage: running ? "stop.circle.fill" : "record.circle")
                 .font(.headline)
                 .frame(maxWidth: .infinity)

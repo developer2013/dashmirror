@@ -122,12 +122,12 @@ nonisolated final class TestPattern: @unchecked Sendable {
             .foregroundColor: UIColor.white,
             .backgroundColor: UIColor.black.withAlphaComponent(0.75),
         ]
-        ((" " + String(localized: "↑ top – TEST PATTERN") + " ") as NSString).draw(at: CGPoint(x: size.width * 0.2, y: 40), withAttributes: big)
-        ((" " + String(format: String(localized: "Frame %d · %.1f s"), locale: .current, frame, seconds) + " ") as NSString)
+        ((" " + String(localized: "↑ top – TEST PATTERN", bundle: .ui) + " ") as NSString).draw(at: CGPoint(x: size.width * 0.2, y: 40), withAttributes: big)
+        ((" " + String(format: String(localized: "Frame %d · %.1f s", bundle: .ui), locale: .ui, frame, seconds) + " ") as NSString)
             .draw(at: CGPoint(x: size.width * 0.3, y: 160), withAttributes: small)
         // Ecken: zeigen, ob das Bild gespiegelt statt gedreht ankommt.
-        ((" " + String(localized: "top left") + " ") as NSString).draw(at: CGPoint(x: 12, y: 12), withAttributes: small)
-        let corner = (" " + String(localized: "bottom right") + " ") as NSString
+        ((" " + String(localized: "top left", bundle: .ui) + " ") as NSString).draw(at: CGPoint(x: 12, y: 12), withAttributes: small)
+        let corner = (" " + String(localized: "bottom right", bundle: .ui) + " ") as NSString
         let cornerSize = corner.size(withAttributes: small)
         corner.draw(at: CGPoint(x: size.width - cornerSize.width - 12, y: size.height - cornerSize.height - 12),
                     withAttributes: small)

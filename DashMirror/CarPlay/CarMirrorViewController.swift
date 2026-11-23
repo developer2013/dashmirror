@@ -66,7 +66,6 @@ final class CarMirrorViewController: UIViewController {
         toast.font = .systemFont(ofSize: 18, weight: .semibold)
 
         // Dauerhafter Hinweis, solange die Fahrsperre per Test-Startargument aus ist.
-        testWarning.text = "  " + String(localized: "Driving lock OFF – test only") + "  "
         testWarning.font = .systemFont(ofSize: 13, weight: .bold)
         testWarning.textColor = .black
         testWarning.backgroundColor = .systemOrange
@@ -140,6 +139,9 @@ final class CarMirrorViewController: UIViewController {
     }
 
     private func refresh() {
+        // Sprachwechsel am iPhone wirkt auch hier sofort: `code` lesen = beobachten.
+        _ = LanguageStore.shared.code
+        testWarning.text = "  " + String(localized: "Driving lock OFF – test only", bundle: .ui) + "  "
         let locked = hub.driving.isLocked
         let streaming = hub.sourceConnected
         let visible = hub.carForeground && !locked
@@ -152,21 +154,21 @@ final class CarMirrorViewController: UIViewController {
         videoView.panFraction = hub.panFraction
 
         if locked {
-            showMessage(symbol: "car.fill", title: String(localized: "Hidden while driving"),
-                        text: String(localized: "The picture comes back as soon as the car stands still."))
+            showMessage(symbol: "car.fill", title: String(localized: "Hidden while driving", bundle: .ui),
+                        text: String(localized: "The picture comes back as soon as the car stands still.", bundle: .ui))
         } else if !streaming {
             showMessage(symbol: "rectangle.on.rectangle",
-                        title: String(localized: "Waiting for the broadcast"),
-                        text: String(localized: "On the iPhone: open “DashMirror” › “Start mirroring”\nor Control Center › long-press Screen Recording › “DashMirror”.\nLocking the iPhone ends the broadcast – start it again afterwards."))
+                        title: String(localized: "Waiting for the broadcast", bundle: .ui),
+                        text: String(localized: "On the iPhone: open “DashMirror” › “Start mirroring”\nor Control Center › long-press Screen Recording › “DashMirror”.\nLocking the iPhone ends the broadcast – start it again afterwards.", bundle: .ui))
         } else {
             message.isHidden = true
         }
 
         hud.isHidden = !showsHUD
         if showsHUD {
-            let latency = hub.latencyMs.map { String(format: "%.0f ms", locale: .current, $0) } ?? "–"
-            hud.text = "  " + String(format: String(localized: "%.0f fps"), locale: .current, hub.framesPerSecond)
-                + String(format: " · %.1f Mbit/s · %@ · %dx%d · %@  ", locale: .current, hub.megabitsPerSecond, latency,
+            let latency = hub.latencyMs.map { String(format: "%.0f ms", locale: .ui, $0) } ?? "–"
+            hud.text = "  " + String(format: String(localized: "%.0f fps", bundle: .ui), locale: .ui, hub.framesPerSecond)
+                + String(format: " · %.1f Mbit/s · %@ · %dx%d · %@  ", locale: .ui, hub.megabitsPerSecond, latency,
                               Int(hub.frameSize.width), Int(hub.frameSize.height), hub.fit.title)
         }
     }
@@ -195,7 +197,7 @@ final class CarMirrorViewController: UIViewController {
 
     @objc private func tapped() {
         hub.fit = hub.fit.next
-        showToast(String(format: String(localized: "Picture: %@"), locale: .current, hub.fit.title))
+        showToast(String(format: String(localized: "Picture: %@", bundle: .ui), locale: .ui, hub.fit.title))
         MirrorLog.write("Autodisplay: Bildformat \(hub.fit.rawValue)")
     }
 
@@ -208,7 +210,7 @@ final class CarMirrorViewController: UIViewController {
         case .changed:
             hub.zoom = Double((CGFloat(pinchStartZoom) * gesture.scale).clamped(to: MirrorVideoView.zoomRange))
         case .ended, .cancelled:
-            showToast(String(format: "Zoom %.1f×", locale: .current, hub.zoom))
+            showToast(String(format: "Zoom %.1f×", locale: .ui, hub.zoom))
             MirrorLog.write(String(format: "Autodisplay: Zoom %.2f", hub.zoom))
         default:
             break
