@@ -67,8 +67,8 @@ CarPlay window (UIWindowScene under the role "UIWindowSceneSessionRoleCarPlay")
 5. Set Auto-Lock to *Never* – the picture freezes when the iPhone locks.
 
 On the car screen: **tap** = picture format (fit → fill → stretch), **pinch** = zoom, **drag** = move the zoomed
-image, **double tap** = reset zoom, **long press** = show stats. Whether a head unit delivers multi-touch depends on
-the car, so the iPhone has the same zoom as a slider.
+image, **long press** = show stats. Whether a head unit delivers multi-touch depends on the car (Apple's CarPlay
+Simulator doesn't), so the iPhone has the same zoom as a slider, plus reset.
 On the iPhone: frame rate (30/60) and quality (6/12/20 Mbit/s) apply immediately; resolution follows the car display.
 
 Hold the iPhone in landscape: its image is 2.17:1 and fills a wide car display almost completely. Portrait apps stay

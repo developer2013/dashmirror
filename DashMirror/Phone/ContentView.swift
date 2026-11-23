@@ -63,7 +63,7 @@ struct ContentView: View {
                 } header: {
                     Text("Auto")
                 } footer: {
-                    Text("iPhone quer halten füllt breite Autodisplays am besten. Ränder abschneiden entfernt schwarze Streifen, die Spiele selbst lassen (z. B. wegen der Dynamic Island). Im Auto: tippen = Bildformat, zwei Finger = zoomen, ziehen = Ausschnitt, doppelt tippen = zurücksetzen.")
+                    Text("iPhone quer halten füllt breite Autodisplays am besten. Ränder abschneiden entfernt schwarze Streifen, die Spiele selbst lassen (z. B. wegen der Dynamic Island). Im Auto: tippen = Bildformat, zwei Finger = zoomen (wenn das Autodisplay das unterstützt), ziehen = Ausschnitt.")
                 }
 
                 DrivingSection(monitor: hub.driving)

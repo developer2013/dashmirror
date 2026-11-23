@@ -97,17 +97,16 @@ final class CarMirrorViewController: UIViewController {
             testWarning.topAnchor.constraint(equalTo: safe.topAnchor, constant: 8),
         ])
 
-        // Tippen = Bildformat, Doppeltippen = Zoom zuruecksetzen, zwei Finger = zoomen, ziehen = Ausschnitt,
-        // lange druecken = Messwerte. Ob ein Autodisplay Mehrfinger-Gesten liefert, haengt vom Auto ab –
-        // am iPhone gibt es deshalb denselben Zoom als Regler.
-        let doubleTap = UITapGestureRecognizer(target: self, action: #selector(doubleTapped))
-        doubleTap.numberOfTapsRequired = 2
+        // Tippen = Bildformat, zwei Finger = zoomen, ziehen = Ausschnitt, lange druecken = Messwerte.
+        // Ob ein Autodisplay Mehrfinger-Gesten liefert, haengt vom Auto ab (CarPlay Simulator: nein, gemessen
+        // am 23.11.2026) – am iPhone gibt es deshalb denselben Zoom als Regler samt Zuruecksetzen.
+        // Kein Doppeltippen mehr: Schnelles Durchtippen der Formate wurde als Doppeltipp erkannt und setzte den
+        // Zoom zurueck (7x in einer Minute), ausserdem verzoegerte es jeden einfachen Tipp um ~0,3 s.
         let tap = UITapGestureRecognizer(target: self, action: #selector(tapped))
-        tap.require(toFail: doubleTap)
         let pinch = UIPinchGestureRecognizer(target: self, action: #selector(pinched(_:)))
         let pan = UIPanGestureRecognizer(target: self, action: #selector(panned(_:)))
         pan.maximumNumberOfTouches = 2
-        for gesture in [doubleTap, tap, pinch, pan, UILongPressGestureRecognizer(target: self, action: #selector(longPressed(_:)))] {
+        for gesture in [tap, pinch, pan, UILongPressGestureRecognizer(target: self, action: #selector(longPressed(_:)))] {
             gesture.delegate = self
             view.addGestureRecognizer(gesture)
         }
@@ -199,12 +198,6 @@ final class CarMirrorViewController: UIViewController {
         hub.fit = hub.fit.next
         showToast("Bild: \(hub.fit.title)")
         MirrorLog.write("Autodisplay: Bildformat \(hub.fit.rawValue)")
-    }
-
-    @objc private func doubleTapped() {
-        hub.resetZoom()
-        showToast("Zoom zurückgesetzt")
-        MirrorLog.write("Autodisplay: Zoom zurueckgesetzt")
     }
 
     private var pinchStartZoom: Double = 1
