@@ -1,0 +1,21 @@
+// Signing.xcconfig – DashMirror
+//
+// Defaults that build for anyone: the simulator works out of the box, a device build works once
+// DASHMIRROR_TEAM is set – phone-only, without the car screen.
+// Put your own values into Config/Local.xcconfig (git-ignored). Copy Config/Local.xcconfig.example.
+
+// Your 10-character Apple Developer team ID.
+DASHMIRROR_TEAM =
+
+// Your own bundle identifier. The broadcast extension becomes <this>.MirrorBroadcast.
+DASHMIRROR_BUNDLE_ID = com.example.dashmirror
+
+// App Group shared by app and extension (socket, settings, logs). Must be registered for both App IDs.
+DASHMIRROR_APP_GROUP = group.$(DASHMIRROR_BUNDLE_ID)
+
+// Without Apple's CarPlay entitlements: mirroring pipeline, test pattern and phone UI work, the car screen does not.
+// Only with BOTH com.apple.developer.carplay-video and carplay-audio granted for your App ID:
+//   DASHMIRROR_ENTITLEMENTS = Config/DashMirror-CarPlay.entitlements
+DASHMIRROR_ENTITLEMENTS = Config/DashMirror.entitlements
+
+#include? "Local.xcconfig"

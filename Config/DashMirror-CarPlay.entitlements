@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  With car screen. Needs BOTH entitlements granted by Apple for your App ID: carplay-video and carplay-audio.
+  With "video" alone the app never appears in the car, without any error (seen with cafari-lite as well).
+  Without the grant, device signing fails – intended: clearer than an app that silently shows nothing.
+  After enabling them in the developer portal, let Xcode fetch a fresh profile (build once in Xcode or
+  xcodebuild -allowProvisioningUpdates); an old profile gives "Entitlements ... not found".
+  Simulator builds always use this file (no provisioning check there).
+-->
+<plist version="1.0">
+<dict>
+	<key>com.apple.developer.carplay-audio</key>
+	<true/>
+	<key>com.apple.developer.carplay-video</key>
+	<true/>
+	<key>com.apple.security.application-groups</key>
+	<array>
+		<string>$(DASHMIRROR_APP_GROUP)</string>
+	</array>
+</dict>
+</plist>

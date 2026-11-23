@@ -1,0 +1,12 @@
+# Your own signing values (team ID, bundle ID, App Group) – never commit
+Config/Local.xcconfig
+
+# Xcode
+xcuserdata/
+*.xcuserdatad/
+DerivedData/
+build/
+
+# Logs and system files
+*.log
+.DS_Store

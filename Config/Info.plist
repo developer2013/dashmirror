@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- App-Gruppe aus Config/Signing.xcconfig bzw. Local.xcconfig – der Code liest sie hier (Mirror.appGroup) -->
+	<key>DashMirrorAppGroup</key>
+	<string>$(DASHMIRROR_APP_GROUP)</string>
+	<!-- Fahrsperre: nur Geschwindigkeit/Bewegung, nichts wird gespeichert oder gesendet -->
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Nur um zu erkennen, ob das Auto fährt: Dann wird das Bild im Auto ausgeblendet. Nichts wird gespeichert oder gesendet.</string>
+	<key>NSMotionUsageDescription</key>
+	<string>Erkennt Autofahrten auch ohne GPS (z. B. im Tunnel), damit das Bild im Auto während der Fahrt aus bleibt.</string>
+	<!-- Im Auto ist das Spiel am iPhone vorn und unsere iPhone-Oberflaeche im Hintergrund. Damit die Fahrsperre
+	     trotzdem Geschwindigkeiten bekommt, darf der Standort im Hintergrund weiterlaufen (blauer Hinweis). -->
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>location</string>
+	</array>
+	<!-- Szenen: iPhone-Fenster (SwiftUI, automatisch) und das Autodisplay als normales UIKit-Fenster.
+	     iOS legt die CarPlay-Szene nur an, wenn die App mit carplay-video UND carplay-audio signiert ist
+	     (Vorbild: github.com/rPlayAI/cafari-lite, MIT). Die Rolle hat in Swift keinen Namen,
+	     siehe CarPlaySceneDelegate.swift. -->
+	<key>UIApplicationSceneManifest</key>
+	<dict>
+		<key>UIApplicationSupportsMultipleScenes</key>
+		<true/>
+		<key>UISceneConfigurations</key>
+		<dict>
+			<key>UIWindowSceneSessionRoleCarPlay</key>
+			<array>
+				<dict>
+					<key>UISceneClassName</key>
+					<string>UIWindowScene</string>
+					<key>UISceneConfigurationName</key>
+					<string>CarPlay</string>
+					<key>UISceneDelegateClassName</key>
+					<string>$(PRODUCT_MODULE_NAME).CarPlaySceneDelegate</string>
+				</dict>
+			</array>
+		</dict>
+	</dict>
+</dict>
+</plist>

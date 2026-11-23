@@ -1,0 +1,8 @@
+// Copy to Config/Local.xcconfig (git-ignored) and fill in your values.
+
+DASHMIRROR_TEAM = ABCDE12345
+DASHMIRROR_BUNDLE_ID = com.yourname.dashmirror
+DASHMIRROR_APP_GROUP = group.com.yourname.dashmirror
+
+// Only after Apple granted BOTH CarPlay entitlements (video + audio) for your App ID:
+// DASHMIRROR_ENTITLEMENTS = Config/DashMirror-CarPlay.entitlements
