@@ -1,7 +1,7 @@
 # DashMirror
 
 Mirror your whole iPhone screen into your own CarPlay window: any app, including games you play with a Bluetooth
-controller. No jailbreak, no IPA injection, no extra hardware, and the mirrored apps stay untouched. A fail-closed
+controller. No jailbreak, no IPA injection, no extra hardware ([details](#no-hacks-no-extra-hardware)). A fail-closed
 driving lock hides the picture while the car is moving.
 
 > **Use only while parked.** Not affiliated with, endorsed by, or connected to Apple. CarPlay is a trademark of
@@ -25,6 +25,22 @@ driving lock hides the picture while the car is moving.
 - [Instant replay](#instant-replay): a long press on the car screen saves the last 30 seconds to Photos.
 - [Night mode](#night-mode) and [heat protection](#heat-protection).
 - Switches between English and German without a restart.
+
+## No hacks, no extra hardware
+
+DashMirror only uses what iOS offers every developer:
+
+- No jailbreak. It runs on a normal iPhone with a current iOS.
+- No modified apps. Nothing is injected into the apps you mirror; they run unchanged.
+- No extra devices. No CarPlay dongle, no Android box, no HDMI adapter, no Raspberry Pi. Just the iPhone and the
+  car's normal CarPlay connection.
+- No private APIs. The screen capture is a regular ReplayKit broadcast that you start yourself, like a screen
+  recording. Encoding, transport and display use VideoToolbox, a Unix socket and AVFoundation.
+- No DRM tricks. Protected video stays black.
+
+One part is not standard: the car screen is a plain UIKit window under CarPlay's window scene role, which Apple
+doesn't document. iOS only creates that window for apps with both CarPlay entitlements, and you request those from
+Apple yourself (see [Requirements](#requirements) and [Limitations](#limitations)).
 
 ## How it works
 
