@@ -66,7 +66,7 @@ final class CarMirrorViewController: UIViewController {
         toast.font = .systemFont(ofSize: 18, weight: .semibold)
 
         // Dauerhafter Hinweis, solange die Fahrsperre per Test-Startargument aus ist.
-        testWarning.text = "  Fahrsperre AUS – nur Test  "
+        testWarning.text = "  " + String(localized: "Driving lock OFF – test only") + "  "
         testWarning.font = .systemFont(ofSize: 13, weight: .bold)
         testWarning.textColor = .black
         testWarning.backgroundColor = .systemOrange
@@ -152,23 +152,21 @@ final class CarMirrorViewController: UIViewController {
         videoView.panFraction = hub.panFraction
 
         if locked {
-            showMessage(symbol: "car.fill", title: "Während der Fahrt ausgeblendet",
-                        text: "Das Bild erscheint wieder, sobald das Auto steht.")
+            showMessage(symbol: "car.fill", title: String(localized: "Hidden while driving"),
+                        text: String(localized: "The picture comes back as soon as the car stands still."))
         } else if !streaming {
             showMessage(symbol: "rectangle.on.rectangle",
-                        title: "Warte auf die Übertragung",
-                        text: "Am iPhone „DashMirror“ öffnen › „Spiegelung starten“\n"
-                            + "oder Kontrollzentrum › Bildschirmaufnahme gedrückt halten › „DashMirror“.\n"
-                            + "Wird das iPhone gesperrt, endet die Übertragung – danach neu starten.")
+                        title: String(localized: "Waiting for the broadcast"),
+                        text: String(localized: "On the iPhone: open “DashMirror” › “Start mirroring”\nor Control Center › long-press Screen Recording › “DashMirror”.\nLocking the iPhone ends the broadcast – start it again afterwards."))
         } else {
             message.isHidden = true
         }
 
         hud.isHidden = !showsHUD
         if showsHUD {
-            let latency = hub.latencyMs.map { String(format: "%.0f ms", $0) } ?? "–"
-            hud.text = String(format: "  %.0f B/s · %.1f Mbit/s · %@ · %dx%d · %@  ",
-                              hub.framesPerSecond, hub.megabitsPerSecond, latency,
+            let latency = hub.latencyMs.map { String(format: "%.0f ms", locale: .current, $0) } ?? "–"
+            hud.text = "  " + String(format: String(localized: "%.0f fps"), locale: .current, hub.framesPerSecond)
+                + String(format: " · %.1f Mbit/s · %@ · %dx%d · %@  ", locale: .current, hub.megabitsPerSecond, latency,
                               Int(hub.frameSize.width), Int(hub.frameSize.height), hub.fit.title)
         }
     }
@@ -197,7 +195,7 @@ final class CarMirrorViewController: UIViewController {
 
     @objc private func tapped() {
         hub.fit = hub.fit.next
-        showToast("Bild: \(hub.fit.title)")
+        showToast(String(format: String(localized: "Picture: %@"), locale: .current, hub.fit.title))
         MirrorLog.write("Autodisplay: Bildformat \(hub.fit.rawValue)")
     }
 
@@ -210,7 +208,7 @@ final class CarMirrorViewController: UIViewController {
         case .changed:
             hub.zoom = Double((CGFloat(pinchStartZoom) * gesture.scale).clamped(to: MirrorVideoView.zoomRange))
         case .ended, .cancelled:
-            showToast(String(format: "Zoom %.1f×", hub.zoom))
+            showToast(String(format: "Zoom %.1f×", locale: .current, hub.zoom))
             MirrorLog.write(String(format: "Autodisplay: Zoom %.2f", hub.zoom))
         default:
             break

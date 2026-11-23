@@ -7,9 +7,9 @@
 	<string>$(DASHMIRROR_APP_GROUP)</string>
 	<!-- Fahrsperre: nur Geschwindigkeit/Bewegung, nichts wird gespeichert oder gesendet -->
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Nur um zu erkennen, ob das Auto fährt: Dann wird das Bild im Auto ausgeblendet. Nichts wird gespeichert oder gesendet.</string>
+	<string>Only to tell whether the car is moving – then the picture in the car is hidden. Nothing is stored or sent.</string>
 	<key>NSMotionUsageDescription</key>
-	<string>Erkennt Autofahrten auch ohne GPS (z. B. im Tunnel), damit das Bild im Auto während der Fahrt aus bleibt.</string>
+	<string>Detects car trips even without GPS (e.g. in a tunnel), so the picture in the car stays off while driving.</string>
 	<!-- Im Auto ist das Spiel am iPhone vorn und unsere iPhone-Oberflaeche im Hintergrund. Damit die Fahrsperre
 	     trotzdem Geschwindigkeiten bekommt, darf der Standort im Hintergrund weiterlaufen (blauer Hinweis). -->
 	<key>UIBackgroundModes</key>

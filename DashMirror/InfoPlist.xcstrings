@@ -1,0 +1,38 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "NSLocationWhenInUseUsageDescription" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Only to tell whether the car is moving – then the picture in the car is hidden. Nothing is stored or sent."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nur um zu erkennen, ob das Auto fährt: Dann wird das Bild im Auto ausgeblendet. Nichts wird gespeichert oder gesendet."
+          }
+        }
+      }
+    },
+    "NSMotionUsageDescription" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Detects car trips even without GPS (e.g. in a tunnel), so the picture in the car stays off while driving."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erkennt Autofahrten auch ohne GPS (z. B. im Tunnel), damit das Bild im Auto während der Fahrt aus bleibt."
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

@@ -64,7 +64,12 @@ xcodebuild -project DashMirror.xcodeproj -scheme DashMirror \
 
 ## Style
 
-- UI strings in German **with** umlauts ("Übertragung"). Code comments and log lines in German with ae/oe/ue.
+- UI strings: **English in code** (source language, also the fallback for every other language); the German
+  translation goes into `Shared/Localizable.xcstrings` (one catalog for app and extension – a second
+  `Localizable` catalog in the same target collides). Info.plist texts: `DashMirror/InfoPlist.xcstrings`.
+  Every new UI string needs its German entry; computed strings use `String(localized:)`, numbers in the UI
+  `String(format:locale: .current, …)`. Check: clean build, then compare the `.stringsdata` keys with the catalog.
+- Code comments and log lines in German with ae/oe/ue; logs keep a fixed number format (no locale).
 - Public docs (README, this file) in English.
 - Comments explain *why* and record measurements with a date (e.g. "gemessen am 23.11.2026").
 - New test findings go into the README ("Measurements") and the log (`MirrorLog.write`), so test drives stay

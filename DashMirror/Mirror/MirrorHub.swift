@@ -19,9 +19,9 @@ enum MirrorFit: String, CaseIterable {
 
     var title: String {
         switch self {
-        case .fit:     "Einpassen"
-        case .fill:    "Füllen (Zoom)"
-        case .stretch: "Strecken"
+        case .fit:     String(localized: "Fit")
+        case .fill:    String(localized: "Fill (zoom)")
+        case .stretch: String(localized: "Stretch")
         }
     }
 
@@ -125,7 +125,7 @@ final class MirrorHub {
         guard !started else { return }
         started = true
         guard let path = Mirror.socketPath else {
-            receiverError = "App-Gruppe \(Mirror.appGroup) fehlt"
+            receiverError = String(format: String(localized: "App Group %@ missing"), Mirror.appGroup)
             MirrorLog.write("FEHLER: \(receiverError!)")
             return
         }

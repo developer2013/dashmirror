@@ -174,12 +174,12 @@ final class DrivingLockMonitor: NSObject, CLLocationManagerDelegate {
 
     static func describe(_ status: CLAuthorizationStatus) -> String {
         switch status {
-        case .notDetermined: "noch nicht gefragt"
-        case .restricted: "eingeschränkt"
-        case .denied: "verweigert"
-        case .authorizedAlways: "immer"
-        case .authorizedWhenInUse: "beim Verwenden"
-        @unknown default: "unbekannt"
+        case .notDetermined: String(localized: "not asked yet")
+        case .restricted: String(localized: "restricted")
+        case .denied: String(localized: "denied")
+        case .authorizedAlways: String(localized: "always")
+        case .authorizedWhenInUse: String(localized: "while using")
+        @unknown default: String(localized: "unknown")
         }
     }
 }

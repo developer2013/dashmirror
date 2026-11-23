@@ -18,17 +18,17 @@ struct LogView: View {
 
     var body: some View {
         ScrollView {
-            Text(text.isEmpty ? "Noch keine Einträge." : text)
+            Text(text.isEmpty ? String(localized: "No entries yet.") : text)
                 .font(.caption.monospaced())
                 .textSelection(.enabled)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding()
         }
-        .navigationTitle("Protokoll")
+        .navigationTitle("Log")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button("Neu laden", systemImage: "arrow.clockwise") { load() }
+                Button("Reload", systemImage: "arrow.clockwise") { load() }
             }
             if !files.isEmpty {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -40,11 +40,11 @@ struct LogView: View {
     }
 
     private func load() {
-        text = [("App", MirrorLog.appLogName), ("Erweiterung", MirrorLog.broadcastLogName)]
+        text = [(String(localized: "App"), MirrorLog.appLogName), (String(localized: "Extension"), MirrorLog.broadcastLogName)]
             .map { title, name in
                 let content = MirrorLog.url(name).flatMap { try? String(contentsOf: $0, encoding: .utf8) } ?? ""
                 let lines = content.split(separator: "\n", omittingEmptySubsequences: true).suffix(150)
-                return "── \(title) ──\n" + (lines.isEmpty ? "(leer)" : lines.joined(separator: "\n"))
+                return "── \(title) ──\n" + (lines.isEmpty ? String(localized: "(empty)") : lines.joined(separator: "\n"))
             }
             .joined(separator: "\n\n")
     }

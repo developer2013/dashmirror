@@ -18,7 +18,7 @@ struct BroadcastButton: View {
         Button {
             BroadcastPicker.shared.show()
         } label: {
-            Label(running ? "Spiegelung beenden" : "Spiegelung starten",
+            Label(running ? String(localized: "Stop mirroring") : String(localized: "Start mirroring"),
                   systemImage: running ? "stop.circle.fill" : "record.circle")
                 .font(.headline)
                 .frame(maxWidth: .infinity)

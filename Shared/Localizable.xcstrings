@@ -1,0 +1,889 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "%.0f fps" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%.0f B/s"
+          }
+        }
+      }
+    },
+    "(empty)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "(leer)"
+          }
+        }
+      }
+    },
+    "30 fps" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "30 B/s"
+          }
+        }
+      }
+    },
+    "60 fps" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "60 B/s"
+          }
+        }
+      }
+    },
+    "Allow in Settings" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In den Einstellungen erlauben"
+          }
+        }
+      }
+    },
+    "Allow location" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Standort erlauben"
+          }
+        }
+      }
+    },
+    "App" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App"
+          }
+        }
+      }
+    },
+    "App Group %@ missing" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App-Gruppe %@ fehlt"
+          }
+        }
+      }
+    },
+    "Applies immediately, even during a running broadcast. The resolution follows the car display automatically." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gilt sofort, auch während einer laufenden Übertragung. Die Auflösung richtet sich automatisch nach dem Autodisplay."
+          }
+        }
+      }
+    },
+    "Car" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auto"
+          }
+        }
+      }
+    },
+    "Car connected" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auto verbunden"
+          }
+        }
+      }
+    },
+    "CarPlay" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CarPlay"
+          }
+        }
+      }
+    },
+    "Connect the iPhone to CarPlay and open “DashMirror” in the car." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iPhone mit CarPlay verbinden und im Auto „DashMirror“ öffnen."
+          }
+        }
+      }
+    },
+    "Cut off black borders" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schwarze Ränder abschneiden"
+          }
+        }
+      }
+    },
+    "DashMirror" : {
+      "shouldTranslate" : false
+    },
+    "Data rate" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datenrate"
+          }
+        }
+      }
+    },
+    "Driving lock" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fahrsperre"
+          }
+        }
+      }
+    },
+    "Driving lock OFF – test only" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fahrsperre AUS – nur Test"
+          }
+        }
+      }
+    },
+    "Driving lock active" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fahrsperre aktiv"
+          }
+        }
+      }
+    },
+    "Dropped" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verworfen"
+          }
+        }
+      }
+    },
+    "Economy (6 Mbit/s)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sparsam (6 Mbit/s)"
+          }
+        }
+      }
+    },
+    "Extension" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erweiterung"
+          }
+        }
+      }
+    },
+    "Fill (zoom)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Füllen (Zoom)"
+          }
+        }
+      }
+    },
+    "Fit" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einpassen"
+          }
+        }
+      }
+    },
+    "Frame %d · %.1f s" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bild %d · %.1f s"
+          }
+        }
+      }
+    },
+    "Frame rate" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bildrate"
+          }
+        }
+      }
+    },
+    "Hidden while driving" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Während der Fahrt ausgeblendet"
+          }
+        }
+      }
+    },
+    "High (20 Mbit/s)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hoch (20 Mbit/s)"
+          }
+        }
+      }
+    },
+    "Holding the iPhone in landscape fills wide car displays best. Cutting off borders removes black bars that games leave themselves (e.g. for the Dynamic Island). In the car: tap = picture format, two fingers = zoom (if the car display supports it), drag = move." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iPhone quer halten füllt breite Autodisplays am besten. Ränder abschneiden entfernt schwarze Streifen, die Spiele selbst lassen (z. B. wegen der Dynamic Island). Im Auto: tippen = Bildformat, zwei Finger = zoomen (wenn das Autodisplay das unterstützt), ziehen = Ausschnitt."
+          }
+        }
+      }
+    },
+    "How it works" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "So geht’s"
+          }
+        }
+      }
+    },
+    "Latency to the app" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Latenz bis zur App"
+          }
+        }
+      }
+    },
+    "Location" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Standort"
+          }
+        }
+      }
+    },
+    "Log" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Protokoll"
+          }
+        }
+      }
+    },
+    "Mirroring" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spiegelung läuft"
+          }
+        }
+      }
+    },
+    "Motion" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bewegung"
+          }
+        }
+      }
+    },
+    "No car connected" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kein Auto verbunden"
+          }
+        }
+      }
+    },
+    "No entries yet." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Noch keine Einträge."
+          }
+        }
+      }
+    },
+    "Normal (12 Mbit/s)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Normal (12 Mbit/s)"
+          }
+        }
+      }
+    },
+    "On the iPhone: open “DashMirror” › “Start mirroring”\nor Control Center › long-press Screen Recording › “DashMirror”.\nLocking the iPhone ends the broadcast – start it again afterwards." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Am iPhone „DashMirror“ öffnen › „Spiegelung starten“\noder Kontrollzentrum › Bildschirmaufnahme gedrückt halten › „DashMirror“.\nWird das iPhone gesperrt, endet die Übertragung – danach neu starten."
+          }
+        }
+      }
+    },
+    "Pair a Bluetooth controller with the iPhone." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bluetooth-Controller mit dem iPhone koppeln."
+          }
+        }
+      }
+    },
+    "Picture format" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bildformat"
+          }
+        }
+      }
+    },
+    "Picture in the car" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bild im Auto"
+          }
+        }
+      }
+    },
+    "Picture: %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bild: %@"
+          }
+        }
+      }
+    },
+    "Quality" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Qualität"
+          }
+        }
+      }
+    },
+    "Ready" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bereit"
+          }
+        }
+      }
+    },
+    "Receiving" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Empfang"
+          }
+        }
+      }
+    },
+    "Reload" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neu laden"
+          }
+        }
+      }
+    },
+    "Reset zoom and position" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zoom und Ausschnitt zurücksetzen"
+          }
+        }
+      }
+    },
+    "Resolution" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auflösung"
+          }
+        }
+      }
+    },
+    "Send test pattern" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Testbild senden"
+          }
+        }
+      }
+    },
+    "Sends a test pattern through the same chain as the mirroring (encoder, socket, display). If “↑ top” stands upright and readable, rotation is correct too." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schickt ein Testbild durch dieselbe Kette wie die Spiegelung (Encoder, Socket, Anzeige). Steht „↑ oben“ aufrecht und lesbar, stimmt auch die Drehung."
+          }
+        }
+      }
+    },
+    "Set Auto-Lock to “Never” – locking the iPhone ends the broadcast." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatische Sperre auf „Nie“ stellen – sobald sich das iPhone sperrt, endet die Übertragung."
+          }
+        }
+      }
+    },
+    "Shared container missing – check the App Group in the entitlements." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gemeinsamer Container fehlt – App-Gruppe in den Entitlements prüfen."
+          }
+        }
+      }
+    },
+    "Source" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quelle"
+          }
+        }
+      }
+    },
+    "Speed" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geschwindigkeit"
+          }
+        }
+      }
+    },
+    "Start mirroring" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spiegelung starten"
+          }
+        }
+      }
+    },
+    "Stationary for" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stillstand seit"
+          }
+        }
+      }
+    },
+    "Stop mirroring" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spiegelung beenden"
+          }
+        }
+      }
+    },
+    "Stretch" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Strecken"
+          }
+        }
+      }
+    },
+    "Switch to your game, put the iPhone down in landscape and play with the controller." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zum Spiel wechseln, iPhone quer ablegen und mit dem Controller spielen."
+          }
+        }
+      }
+    },
+    "Tap “Start mirroring” here › “Start Broadcast”." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hier „Spiegelung starten“ › „Übertragung starten“."
+          }
+        }
+      }
+    },
+    "Test" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Test"
+          }
+        }
+      }
+    },
+    "Test pattern" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Testbild"
+          }
+        }
+      }
+    },
+    "Test pattern running" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Testbild läuft"
+          }
+        }
+      }
+    },
+    "The picture comes back as soon as the car stands still." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Bild erscheint wieder, sobald das Auto steht."
+          }
+        }
+      }
+    },
+    "Then switch to your game. You control it with a Bluetooth controller on the iPhone; sound plays through the car as usual." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Danach zum Spiel wechseln. Gesteuert wird per Bluetooth-Controller am iPhone, der Ton läuft wie gewohnt über das Auto."
+          }
+        }
+      }
+    },
+    "Waiting for the broadcast" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Warte auf die Übertragung"
+          }
+        }
+      }
+    },
+    "When the car moves, the picture in the car disappears immediately. Without location access it stays off." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fährt das Auto, wird das Bild im Auto sofort ausgeblendet. Ohne Standort bleibt es aus."
+          }
+        }
+      }
+    },
+    "Zoom" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zoom"
+          }
+        }
+      }
+    },
+    "always" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "immer"
+          }
+        }
+      }
+    },
+    "bottom right" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "rechts unten"
+          }
+        }
+      }
+    },
+    "connected" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "verbunden"
+          }
+        }
+      }
+    },
+    "denied" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "verweigert"
+          }
+        }
+      }
+    },
+    "iPhone screen" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iPhone-Bildschirm"
+          }
+        }
+      }
+    },
+    "in background" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "im Hintergrund"
+          }
+        }
+      }
+    },
+    "in car, moving" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "im Auto, fährt"
+          }
+        }
+      }
+    },
+    "in car, standing" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "im Auto, steht"
+          }
+        }
+      }
+    },
+    "locked" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "gesperrt"
+          }
+        }
+      }
+    },
+    "none" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "keine"
+          }
+        }
+      }
+    },
+    "not asked yet" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "noch nicht gefragt"
+          }
+        }
+      }
+    },
+    "not available" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nicht verfügbar"
+          }
+        }
+      }
+    },
+    "not connected" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nicht verbunden"
+          }
+        }
+      }
+    },
+    "restricted" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "eingeschränkt"
+          }
+        }
+      }
+    },
+    "standing" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "steht"
+          }
+        }
+      }
+    },
+    "top left" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "links oben"
+          }
+        }
+      }
+    },
+    "unknown" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "unbekannt"
+          }
+        }
+      }
+    },
+    "unlocked" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "frei"
+          }
+        }
+      }
+    },
+    "while using" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "beim Verwenden"
+          }
+        }
+      }
+    },
+    "↑ top – TEST PATTERN" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "↑ oben – TESTBILD"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}
