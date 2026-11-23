@@ -150,6 +150,17 @@ struct ContentView: View {
                 Section {
                     NavigationLink("Log") { LogView() }
                 }
+
+                Section {
+                    LabeledContent("Developer") {
+                        Link(destination: Self.website) { Text(verbatim: "carstensachse.de") }
+                    }
+                    LabeledContent("Version", value: Self.version)
+                } header: {
+                    Text("About")
+                } footer: {
+                    Text("DashMirror is open source (MIT license).")
+                }
             }
             .navigationTitle("DashMirror")
         }
@@ -176,6 +187,13 @@ struct ContentView: View {
         case .testPattern: return String(localized: "Test pattern", bundle: .ui)
         case nil: return String(localized: "connected", bundle: .ui)
         }
+    }
+
+    private static let website = URL(string: "https://www.carstensachse.de/")!
+
+    private static var version: String {
+        let info = Bundle.main.infoDictionary
+        return "\(info?["CFBundleShortVersionString"] as? String ?? "?") (\(info?["CFBundleVersion"] as? String ?? "?"))"
     }
 
     private var carAppearanceText: String {

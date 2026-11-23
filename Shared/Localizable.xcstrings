@@ -41,6 +41,16 @@
         }
       }
     },
+    "About" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Über"
+          }
+        }
+      }
+    },
     "Allow Photos access" : {
       "localizations" : {
         "de" : {
@@ -224,12 +234,32 @@
     "DashMirror" : {
       "shouldTranslate" : false
     },
+    "DashMirror is open source (MIT license)." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DashMirror ist Open Source (MIT-Lizenz)."
+          }
+        }
+      }
+    },
     "Data rate" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Datenrate"
+          }
+        }
+      }
+    },
+    "Developer" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entwickler"
           }
         }
       }
@@ -1010,6 +1040,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Bis zu 10 % strecken und 10 % zoomen kombiniert – füllt breite Displays meist mit kaum sichtbaren Änderungen."
+          }
+        }
+      }
+    },
+    "Version" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Version"
           }
         }
       }

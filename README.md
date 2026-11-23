@@ -238,6 +238,10 @@ Code comments are in German.
 - [rPlayAI/cafari-lite](https://github.com/rPlayAI/cafari-lite) (MIT) for showing that a plain `UIWindowScene` under
   `UIWindowSceneSessionRoleCarPlay` works with the CarPlay video + audio entitlements. No code was copied.
 
+## Author
+
+Made by Carsten Sachse – [carstensachse.de](https://www.carstensachse.de/).
+
 ## License
 
 Code: MIT – see [LICENSE](LICENSE).
