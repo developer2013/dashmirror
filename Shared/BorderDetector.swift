@@ -108,7 +108,12 @@ nonisolated struct BorderDetector {
         // Bis zur Grenze schwarz = (fast) leeres Bild, z. B. Ladebildschirm: keine Aussage.
         guard left < maxX, right < maxX, top < maxY, bottom < maxY else { return nil }
         // Abrunden auf 8 px: kleinerer Zuschnitt ist immer sicher, und kleines Zittern aendert nichts.
-        let crop = Crop(dx: min(left, right) / 8 * 8, dy: min(top, bottom) / 8 * 8)
+        var crop = Crop(dx: min(left, right) / 8 * 8, dy: min(top, bottom) / 8 * 8)
+        // Mini-Raender (unter 4 % je Achse) ignorieren: Sie bringen kaum Bildflaeche, kosten aber bei jedem Wechsel
+        // einen Encoder-Neuaufbau. Gemessen am 23.11.2026 auf dem iPhone: 8 -> 0 -> 24 -> 16 px in 6 s
+        // (Statusleiste bzw. Abdunkeln beim Sperren), jedes Mal mit kurzem Bildsprung im Auto.
+        if crop.dx < width * 4 / 100 { crop.dx = 0 }
+        if crop.dy < height * 4 / 100 { crop.dy = 0 }
         guard width - 2 * crop.dx >= width * 4 / 10, height - 2 * crop.dy >= height * 4 / 10 else { return nil }
         return crop
     }
