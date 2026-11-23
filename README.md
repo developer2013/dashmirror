@@ -1,7 +1,3 @@
-<p align="center">
-  <img src="DashMirror/Assets.xcassets/AppIcon.appiconset/AppIcon.png" width="128" alt="DashMirror icon">
-</p>
-
 # DashMirror
 
 Mirror your **whole iPhone screen** – any app, including games played with a Bluetooth controller – into your own
