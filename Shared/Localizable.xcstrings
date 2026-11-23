@@ -101,6 +101,16 @@
         }
       }
     },
+    "Automatic" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatisch"
+          }
+        }
+      }
+    },
     "Car" : {
       "localizations" : {
         "de" : {
@@ -230,6 +240,36 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Füllen (Zoom)"
+          }
+        }
+      }
+    },
+    "Fills completely, edges are cut off." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Füllt ganz, die Ränder werden abgeschnitten."
+          }
+        }
+      }
+    },
+    "Fills completely, the picture gets distorted." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Füllt ganz, das Bild wird verzerrt."
+          }
+        }
+      }
+    },
+    "Fills when the shapes are close (under 15 %), otherwise fits. Never distorts." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Füllt randlos, wenn die Formen ähnlich sind (unter 15 %), sonst eingepasst. Verzerrt nie."
           }
         }
       }
@@ -554,6 +594,36 @@
         }
       }
     },
+    "Slight stretch" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leicht gestreckt"
+          }
+        }
+      }
+    },
+    "Slight zoom" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leicht vergrößert"
+          }
+        }
+      }
+    },
+    "Smart fill" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Smart füllen"
+          }
+        }
+      }
+    },
     "Source" : {
       "localizations" : {
         "de" : {
@@ -610,6 +680,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Strecken"
+          }
+        }
+      }
+    },
+    "Stretches by at most 12 %, the rest stays black bars." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Streckt höchstens 12 %, der Rest bleibt schwarzer Rand."
           }
         }
       }
@@ -694,6 +774,16 @@
         }
       }
     },
+    "Up to 10 % stretch and 10 % zoom combined – usually fills wide displays with barely visible changes." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bis zu 10 % strecken und 10 % zoomen kombiniert – füllt breite Displays meist mit kaum sichtbaren Änderungen."
+          }
+        }
+      }
+    },
     "Waiting for the broadcast" : {
       "localizations" : {
         "de" : {
@@ -714,12 +804,32 @@
         }
       }
     },
+    "Whole picture, black bars." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ganzes Bild, schwarze Ränder."
+          }
+        }
+      }
+    },
     "Zoom" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Zoom"
+          }
+        }
+      }
+    },
+    "Zooms in until at most 12 % is cut off." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vergrößert, bis höchstens 12 % abgeschnitten sind."
           }
         }
       }

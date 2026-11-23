@@ -58,8 +58,9 @@ struct ContentView: View {
                 Section {
                     LabeledContent("CarPlay", value: carText)
                     Picker("Picture format", selection: $hub.fit) {
-                        ForEach(MirrorFit.allCases, id: \.self) { Text($0.title).tag($0) }
+                        ForEach(MirrorFit.allCases) { Text(verbatim: $0.title).tag($0) }
                     }
+                    Text(verbatim: hub.fit.detail).font(.caption).foregroundStyle(.secondary)
                     Toggle("Cut off black borders", isOn: $hub.autoCrop)
                     VStack(alignment: .leading, spacing: 4) {
                         LabeledContent("Zoom", value: String(format: "%.1f×", locale: .ui, hub.zoom))

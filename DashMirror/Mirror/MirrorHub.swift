@@ -13,37 +13,6 @@ import ImageIO
 import Observation
 import UIKit
 
-/// Wie das gespiegelte Bild das Autodisplay fuellt.
-enum MirrorFit: String, CaseIterable {
-    case fit, fill, stretch
-
-    var title: String {
-        switch self {
-        case .fit:     String(localized: "Fit", bundle: .ui)
-        case .fill:    String(localized: "Fill (zoom)", bundle: .ui)
-        case .stretch: String(localized: "Stretch", bundle: .ui)
-        }
-    }
-
-    var gravity: AVLayerVideoGravity {
-        switch self {
-        case .fit:     .resizeAspect
-        case .fill:    .resizeAspectFill
-        case .stretch: .resize
-        }
-    }
-
-    var next: MirrorFit {
-        let all = Self.allCases
-        return all[(all.firstIndex(of: self)! + 1) % all.count]
-    }
-
-    /// Tippen im Auto wechselt nur zwischen Einpassen und Fuellen. "Strecken" verzerrt bei jedem
-    /// Seitenverhaeltnis-Unterschied (BMW: 2,45:1 gegen iPhone 2,17:1) und war im Auto versehentlich aktiv
-    /// (23.11.2026) – es bleibt nur in der Auswahl am iPhone.
-    var nextInCar: MirrorFit { self == .fit ? .fill : .fit }
-}
-
 @Observable
 final class MirrorHub {
     static let shared = MirrorHub()
@@ -65,8 +34,14 @@ final class MirrorHub {
     private(set) var carPixelSize: CGSize = .zero
 
     // MARK: Einstellungen
-    var fit = MirrorFit(rawValue: UserDefaults.standard.string(forKey: "mirrorFit") ?? "") ?? .fit {
-        didSet { UserDefaults.standard.set(fit.rawValue, forKey: "mirrorFit") }
+    var fit = MirrorFit(rawValue: UserDefaults.standard.string(forKey: "mirrorFit") ?? "") ?? .auto {
+        didSet {
+            guard fit != oldValue else { return }
+            UserDefaults.standard.set(fit.rawValue, forKey: "mirrorFit")
+            // Fuer die Auswertung von Testfahrten: welches Format bei welcher Bild-/Displaygroesse lief.
+            MirrorLog.write("Bildformat: \(fit.rawValue) (Bild \(Int(frameSize.width))x\(Int(frameSize.height)), "
+                            + "Auto \(Int(carPixelSize.width))x\(Int(carPixelSize.height)) px)")
+        }
     }
     var frameRate = MirrorSettings.load().frameRate {
         didSet { if frameRate != oldValue { settingsChanged() } }

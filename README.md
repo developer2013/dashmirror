@@ -62,11 +62,11 @@ CarPlay window (UIWindowScene under the role "UIWindowSceneSessionRoleCarPlay")
 
 1. Pair a Bluetooth controller with the iPhone.
 2. Connect to CarPlay and open **DashMirror** on the car screen.
-3. On the iPhone: **Spiegelung starten** → *Start Broadcast* (or Control Center → long-press Screen Recording → DashMirror).
+3. On the iPhone: **Start mirroring** → *Start Broadcast* (or Control Center → long-press Screen Recording → DashMirror).
 4. Switch to your game, put the iPhone down in landscape, play with the controller.
-5. Set Auto-Lock to *Never* – the picture freezes when the iPhone locks.
+5. Set Auto-Lock to *Never* – locking the iPhone ends the broadcast.
 
-On the car screen: **tap** = picture format (fit ↔ fill; stretch only on the iPhone), **pinch** = zoom, **drag** = move the zoomed
+On the car screen: **tap** = next picture format (its name shows briefly), **pinch** = zoom, **drag** = move the zoomed
 image, **long press** = show stats. Whether a head unit delivers multi-touch depends on the car (Apple's CarPlay
 Simulator doesn't), so the iPhone has the same zoom as a slider, plus reset.
 On the iPhone: frame rate (30/60) and quality (6/12/20 Mbit/s) apply immediately; resolution follows the car display.
@@ -74,10 +74,25 @@ On the iPhone: frame rate (30/60) and quality (6/12/20 Mbit/s) apply immediately
 Hold the iPhone in landscape: its image is 2.17:1 and fills a wide car display almost completely. Portrait apps stay
 a narrow strip; use zoom for those.
 
+Picture formats (tap cycles through them; the iPhone shows each one with a short explanation):
+
+| Format | What it does |
+|-|-|
+| Automatic (default) | Fills when the shapes differ by less than 15 %, otherwise fits. Never distorts. |
+| Fit | Whole picture, black bars. |
+| Slight zoom | Zooms in until at most 12 % is cut off. |
+| Smart fill | Up to 10 % stretch plus up to 10 % zoom. |
+| Slight stretch | Stretches by at most 12 %, the rest stays black bars. |
+| Fill (zoom) | Fills completely, edges are cut off. |
+| Stretch | Fills completely, distorted. |
+
+In the BMW (2.45:1 display, iPhone landscape 2.17:1) the gap is 13 %, so *Automatic*, *Slight zoom* and *Smart fill*
+all come out borderless or nearly so. Which one looks best is still to be tested in the car.
+
 **Black borders are cut off automatically.** Many games leave black bars for the Dynamic Island or render 16:9 on the
 19.5:9 screen. The extension detects them and crops before encoding, so the actual content gets bigger. Per axis it
 only cuts what is black on *both* sides; when content reaches into a border, the crop shrinks at once, it only grows
-after 2 s of stable measurements (dark scenes don't zoom). Toggle: *Schwarze Ränder abschneiden*.
+after 2 s of stable measurements (dark scenes don't zoom). Toggle: *Cut off black borders*.
 
 ## Driving lock
 

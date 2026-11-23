@@ -25,7 +25,7 @@ final class MirrorVideoView: UIView {
     }
 
     var fit: MirrorFit = .fit {
-        didSet { if fit != oldValue { displayLayer.videoGravity = fit.gravity; setNeedsLayout() } }
+        didSet { if fit != oldValue { setNeedsLayout() } }
     }
 
     /// Kodierte Bildgroesse (vor der Drehung) – braucht es fuer die Grenzen beim Verschieben.
@@ -47,7 +47,8 @@ final class MirrorVideoView: UIView {
         super.init(frame: frame)
         backgroundColor = .black
         clipsToBounds = true
-        displayLayer.videoGravity = fit.gravity
+        // Immer .resize: Der Layer bekommt genau die Groesse, die MirrorFit ausrechnet (auch Zwischenstufen).
+        displayLayer.videoGravity = .resize
         displayLayer.backgroundColor = UIColor.black.cgColor
         layer.addSublayer(displayLayer)
     }
@@ -63,9 +64,10 @@ final class MirrorVideoView: UIView {
                              y: panFraction.y.clamped(to: -1...1) * limit.y)
         CATransaction.begin()
         CATransaction.setDisableActions(true)
-        // Vor dem Drehen hat der Layer vertauschte Seiten – nach der Drehung fuellt er die Ansicht genau.
+        // Layer genau so gross wie das sichtbare Bild; vor dem Drehen mit vertauschten Seiten.
+        let content = contentSize()
         displayLayer.bounds = CGRect(origin: .zero, size: swapsSides
-                                     ? CGSize(width: bounds.height, height: bounds.width) : bounds.size)
+                                     ? CGSize(width: content.height, height: content.width) : content)
         displayLayer.position = CGPoint(x: bounds.midX, y: bounds.midY)
         // Reihenfolge: drehen, vergroessern (beides um die Mitte), dann in Ansichts-Koordinaten verschieben.
         displayLayer.setAffineTransform(CGAffineTransform(rotationAngle: angle)
@@ -82,20 +84,13 @@ final class MirrorVideoView: UIView {
                        y: max(0, (content.height * scale - bounds.height) / 2))
     }
 
-    /// Groesse des sichtbaren Bildes ohne Zoom, je nach Bildformat.
+    /// Groesse des sichtbaren Bildes ohne Zoom, je nach Bildformat (Rechnung in MirrorFit).
+    /// Ohne bekannte Bildgroesse (noch kein Bild empfangen): ganze Flaeche.
     private func contentSize() -> CGSize {
-        guard videoSize.width > 0, videoSize.height > 0, bounds.width > 0, bounds.height > 0 else { return bounds.size }
+        guard videoSize.width > 0, videoSize.height > 0 else { return bounds.size }
         let shown = Self.rotation(for: orientation).swapsSides
             ? CGSize(width: videoSize.height, height: videoSize.width) : videoSize
-        switch fit {
-        case .fit:
-            return AVMakeRect(aspectRatio: shown, insideRect: bounds).size
-        case .fill:
-            let factor = max(bounds.width / shown.width, bounds.height / shown.height)
-            return CGSize(width: shown.width * factor, height: shown.height * factor)
-        case .stretch:
-            return bounds.size
-        }
+        return fit.contentSize(video: shown, in: bounds.size)
     }
 
     /// ReplayKit meint mit .right (6) "zum Anzeigen 90 Grad GEGEN den Uhrzeigersinn drehen", mit .left (8) im
