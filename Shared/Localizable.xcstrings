@@ -41,6 +41,16 @@
         }
       }
     },
+    "Allow Photos access" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zugriff auf Fotos erlauben"
+          }
+        }
+      }
+    },
     "Allow in Settings" : {
       "localizations" : {
         "de" : {
@@ -57,6 +67,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Standort erlauben"
+          }
+        }
+      }
+    },
+    "Always" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Immer"
           }
         }
       }
@@ -91,12 +111,12 @@
         }
       }
     },
-    "Applies immediately, even during a running broadcast. The resolution follows the car display automatically." : {
+    "Applies immediately, even during a running broadcast. The resolution follows the car display automatically. Heat protection lowers resolution and data rate when the iPhone gets hot, the frame rate only at the hottest level – before iOS throttles the game." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gilt sofort, auch während einer laufenden Übertragung. Die Auflösung richtet sich automatisch nach dem Autodisplay."
+            "value" : "Gilt sofort, auch während einer laufenden Übertragung. Die Auflösung richtet sich automatisch nach dem Autodisplay. Der Hitzeschutz senkt Auflösung und Datenrate, wenn das iPhone heiß wird, die Bildrate erst auf der höchsten Stufe – bevor iOS das Spiel drosselt."
           }
         }
       }
@@ -107,6 +127,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Automatisch"
+          }
+        }
+      }
+    },
+    "Blurred background instead of black bars" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unscharfer Hintergrund statt schwarzer Ränder"
           }
         }
       }
@@ -131,12 +161,42 @@
         }
       }
     },
+    "Car reports" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auto meldet"
+          }
+        }
+      }
+    },
     "CarPlay" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "CarPlay"
+          }
+        }
+      }
+    },
+    "Clip saved (%d s) – allow Photos access on the iPhone to move it there" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clip gespeichert (%d s) – erlaube am iPhone den Zugriff auf Fotos, dann landet er dort"
+          }
+        }
+      }
+    },
+    "Clip saved to Photos (%d s)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clip in Fotos gespeichert (%d s)"
           }
         }
       }
@@ -170,6 +230,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Datenrate"
+          }
+        }
+      }
+    },
+    "Dimming" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abdunkeln"
+          }
+        }
+      }
+    },
+    "Dims the picture in the car at night so bright games don’t dazzle. “Automatic” follows the car’s day/night switch (headlights or light sensor). If the car always reports night, choose “Always” or “Off”." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dunkelt das Bild im Auto nachts ab, damit helle Spiele nicht blenden. „Automatisch“ folgt der Tag/Nacht-Umschaltung des Autos (Licht oder Lichtsensor). Meldet das Auto immer Nacht, wähle „Immer“ oder „Aus“."
           }
         }
       }
@@ -314,6 +394,16 @@
         }
       }
     },
+    "Heat protection" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hitzeschutz"
+          }
+        }
+      }
+    },
     "Hidden while driving" : {
       "localizations" : {
         "de" : {
@@ -334,12 +424,12 @@
         }
       }
     },
-    "Holding the iPhone in landscape fills wide car displays best. Cutting off borders removes black bars that games leave themselves (e.g. for the Dynamic Island). In the car: tap = picture format, two fingers = zoom (if the car display supports it), drag = move." : {
+    "Holding the iPhone in landscape fills wide car displays best. Cutting off borders removes black bars that games leave themselves (e.g. for the Dynamic Island). In the car: tap = controls (picture format, clip, info), press and hold = save clip, two fingers = zoom (if the car display supports it), drag = move." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "iPhone quer halten füllt breite Autodisplays am besten. Ränder abschneiden entfernt schwarze Streifen, die Spiele selbst lassen (z. B. wegen der Dynamic Island). Im Auto: tippen = Bildformat, zwei Finger = zoomen (wenn das Autodisplay das unterstützt), ziehen = Ausschnitt."
+            "value" : "iPhone quer halten füllt breite Autodisplays am besten. Ränder abschneiden entfernt schwarze Streifen, die Spiele selbst lassen (z. B. wegen der Dynamic Island). Im Auto: tippen = Leiste (Bildformat, Clip, Info), lange drücken = Clip speichern, zwei Finger = zoomen (wenn das Autodisplay das unterstützt), ziehen = Ausschnitt."
           }
         }
       }
@@ -350,6 +440,36 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "So geht’s"
+          }
+        }
+      }
+    },
+    "Info" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Info"
+          }
+        }
+      }
+    },
+    "Instant replay" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sofort-Wiederholung"
+          }
+        }
+      }
+    },
+    "Keep the last 30 seconds" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Letzte 30 Sekunden bereithalten"
           }
         }
       }
@@ -394,6 +514,16 @@
         }
       }
     },
+    "Lowered to max. %1$d × %2$d, %3$d fps, %4$d Mbit/s" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gesenkt auf max. %1$d × %2$d, %3$d fps, %4$d Mbit/s"
+          }
+        }
+      }
+    },
     "Mirroring" : {
       "localizations" : {
         "de" : {
@@ -410,6 +540,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Bewegung"
+          }
+        }
+      }
+    },
+    "Night mode" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nachtmodus"
           }
         }
       }
@@ -440,6 +580,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Normal (12 Mbit/s)"
+          }
+        }
+      }
+    },
+    "Nothing to save yet – the clip starts with the mirroring" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Noch nichts zu speichern – der Clip beginnt mit der Spiegelung"
+          }
+        }
+      }
+    },
+    "Off" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aus"
           }
         }
       }
@@ -534,6 +694,16 @@
         }
       }
     },
+    "Reset zoom" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zoom zurücksetzen"
+          }
+        }
+      }
+    },
     "Reset zoom and position" : {
       "localizations" : {
         "de" : {
@@ -550,6 +720,56 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Auflösung"
+          }
+        }
+      }
+    },
+    "Save clip" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clip speichern"
+          }
+        }
+      }
+    },
+    "Save last 30 seconds" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Letzte 30 Sekunden speichern"
+          }
+        }
+      }
+    },
+    "Saves what just happened as a video, without sound. In the car: tap › “Save clip”, or press and hold. Clips go to Photos; until access is allowed they wait in the Files app (On My iPhone › DashMirror › Clips)." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Speichert das gerade Gespielte als Video, ohne Ton. Im Auto: tippen › „Clip speichern“ oder lange drücken. Clips landen in Fotos; bis der Zugriff erlaubt ist, warten sie in der Dateien-App (Auf meinem iPhone › DashMirror › Clips)."
+          }
+        }
+      }
+    },
+    "Saving clip…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clip wird gespeichert …"
+          }
+        }
+      }
+    },
+    "Saving…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Speichern …"
           }
         }
       }
@@ -754,6 +974,16 @@
         }
       }
     },
+    "The clip could not be saved" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Clip konnte nicht gespeichert werden"
+          }
+        }
+      }
+    },
     "The picture comes back as soon as the car stands still." : {
       "localizations" : {
         "de" : {
@@ -780,6 +1010,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Bis zu 10 % strecken und 10 % zoomen kombiniert – füllt breite Displays meist mit kaum sichtbaren Änderungen."
+          }
+        }
+      }
+    },
+    "Waiting for Photos" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Warten auf Fotos"
           }
         }
       }
@@ -864,6 +1104,16 @@
         }
       }
     },
+    "day" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tag"
+          }
+        }
+      }
+    },
     "denied" : {
       "localizations" : {
         "de" : {
@@ -874,12 +1124,62 @@
         }
       }
     },
+    "hot" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "heiß"
+          }
+        }
+      }
+    },
+    "iPhone cooler – picture quality back to normal" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iPhone kühler – Bildqualität wieder normal"
+          }
+        }
+      }
+    },
+    "iPhone hot – picture quality lowered" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iPhone heiß – Bildqualität gesenkt"
+          }
+        }
+      }
+    },
     "iPhone screen" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "iPhone-Bildschirm"
+          }
+        }
+      }
+    },
+    "iPhone temperature" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iPhone-Temperatur"
+          }
+        }
+      }
+    },
+    "iPhone very hot – picture reduced to 30 fps" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iPhone sehr heiß – Bild auf 30 fps gesenkt"
           }
         }
       }
@@ -924,12 +1224,32 @@
         }
       }
     },
+    "night" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nacht"
+          }
+        }
+      }
+    },
     "none" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "keine"
+          }
+        }
+      }
+    },
+    "normal" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "normal"
           }
         }
       }
@@ -1010,6 +1330,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "frei"
+          }
+        }
+      }
+    },
+    "very hot" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "sehr heiß"
+          }
+        }
+      }
+    },
+    "warm" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "warm"
           }
         }
       }

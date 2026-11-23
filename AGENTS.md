@@ -31,6 +31,9 @@ xcodebuild -project DashMirror.xcodeproj -scheme DashMirror \
 - Runtime check in the simulator: launch with `-MirrorTestPattern YES`, then read `Logs/app.log` in the App Group
   container (`xcrun simctl get_app_container <udid> <bundle id> <app group>`). Expected after ~10 s:
   `Empfang (10 s): 30.0 B/s … Latenz <10 ms, verworfen 0.0/s`.
+- Car screen without a CarPlay display: launch with `-MirrorCarPreview YES` (plus `-MirrorShowControls YES`), then
+  `xcrun simctl io <udid> screenshot`. Instant replay: `-MirrorReplayTest 12` writes a clip to `Documents/Clips`.
+  Heat protection: `-MirrorThermalTest serious|critical`.
 - Real mirroring (ReplayKit) and CarPlay only on a device – the user measures there. Never call something
   "tested in the car" that only ran in the simulator.
 - Don't register anything in the developer portal yourself (`-allowProvisioningUpdates` etc.) – the user does that.
@@ -61,6 +64,11 @@ xcodebuild -project DashMirror.xcodeproj -scheme DashMirror \
    No `UIApplication` in `Shared/` (the extension builds with `APPLICATION_EXTENSION_API_ONLY`).
 9. **Wire format** (`MirrorProtocol.swift`): change both sides together; bump the `MRR1` magic on incompatible changes.
    Every source sends `hello` with its `MirrorSource` first; the screen source ends a running test pattern.
+10. **Instant replay never re-encodes and never touches the extension.** `ReplayBuffer` (owned by `MirrorPipeline`)
+    keeps the received H.264 in keyframe groups (30 s, max 64 MB) and starts over on a new format or orientation;
+    `ClipWriter` wraps it with `AVAssetWriter` passthrough. Clips are video only (rule 6).
+11. **Heat protection only lowers** what the encoder gets, via `configure` (`ThermalPolicy.adjust` inside
+    `MirrorHub.effectiveSettings`). The order of what is lowered is a design decision – ask before changing it.
 
 ## Style
 

@@ -66,15 +66,17 @@ CarPlay window (UIWindowScene under the role "UIWindowSceneSessionRoleCarPlay")
 4. Switch to your game, put the iPhone down in landscape, play with the controller.
 5. Set Auto-Lock to *Never* – locking the iPhone ends the broadcast.
 
-On the car screen: **tap** = next picture format (its name shows briefly), **pinch** = zoom, **drag** = move the zoomed
-image, **long press** = show stats. Whether a head unit delivers multi-touch depends on the car (Apple's CarPlay
-Simulator doesn't), so the iPhone has the same zoom as a slider, plus reset.
+On the car screen: **tap** = control bar (picture format, save clip, stats, reset zoom; hides after 4 s),
+**long press** = save a clip of the last 30 s, **pinch** = zoom, **drag** = move the zoomed image. Whether a head unit
+delivers multi-touch depends on the car (Apple's CarPlay Simulator doesn't), so the iPhone has the same zoom as a
+slider, plus reset.
 On the iPhone: frame rate (30/60) and quality (6/12/20 Mbit/s) apply immediately; resolution follows the car display.
 
 Hold the iPhone in landscape: its image is 2.17:1 and fills a wide car display almost completely. Portrait apps stay
 a narrow strip; use zoom for those.
 
-Picture formats (tap cycles through them; the iPhone shows each one with a short explanation):
+Picture formats (the format button in the bar cycles through them; the iPhone shows each one with a short
+explanation):
 
 | Format | What it does |
 |-|-|
@@ -93,6 +95,28 @@ all come out borderless or nearly so. Which one looks best is still to be tested
 19.5:9 screen. The extension detects them and crops before encoding, so the actual content gets bigger. Per axis it
 only cuts what is black on *both* sides; when content reaches into a border, the crop shrinks at once, it only grows
 after 2 s of stable measurements (dark scenes don't zoom). Toggle: *Cut off black borders*.
+
+**Blurred background instead of black bars.** Where bars remain (portrait apps, *Fit*), the same picture fills the
+space behind, enlarged and blurred – like portrait videos on TV. It is a second display layer with its own hardware
+decoder, attached only while bars are visible. Toggle: *Blurred background instead of black bars*.
+
+**Instant replay.** The app keeps the last 30 s of the stream it already receives – encoded H.264, in groups starting
+at a keyframe (the encoder sets one at least every 2 s), capped at 64 MB. Saving only wraps those frames into an MP4
+(`AVAssetWriter` passthrough, no re-encoding; 12 s took 0.04 s in the simulator), rotation goes into the track
+transform. Clips go to Photos ("add only" access). iOS can only ask for that access while the DashMirror window is in
+front on the iPhone; until then clips wait in the Files app (*On My iPhone › DashMirror › Clips*) and move to Photos
+the next time the app is opened. Video only, no sound – the extension sends no audio. A new picture format (car
+display change, border crop) or orientation starts the buffer over.
+
+**Night mode.** Dims the car picture with a black layer (15–70 %). *Automatic* follows the car's day/night signal:
+CarPlay switches the window's appearance (`userInterfaceStyle`) by headlights or light sensor, as navigation apps use
+for their maps. Some cars, or *Always Dark* in the CarPlay settings, report night all the time – the iPhone shows what
+the car reports.
+
+**Heat protection.** The app checks the iPhone's thermal state every 0.5 s. At *serious* it lowers resolution to 75 %
+and the data rate to 8 Mbit/s, at *critical* to 67 %, 6 Mbit/s and 30 fps – before iOS throttles the game on its own.
+The car screen says so briefly. The rule is one small function in `DashMirror/Mirror/ThermalPolicy.swift`: it keeps
+60 fps as long as possible, because smoothness usually matters more in games than sharpness on a small car display.
 
 ## Driving lock
 
@@ -120,7 +144,11 @@ xcodebuild -project DashMirror.xcodeproj -scheme DashMirror \
   upright, "top left" is top-left and the bars disappear after ~2 s, rotation and cropping work.
 - **CarPlay Simulator** (Additional Tools for Xcode) with the iPhone on a cable.
 - **`-MirrorNoDrivingLock YES`** (Debug builds only, this launch only): disables the lock for desk testing; the car
-  screen shows a permanent orange "Fahrsperre AUS – nur Test" badge. Launched normally, the lock is back.
+  screen shows a permanent orange "Driving lock OFF – test only" badge. Launched normally, the lock is back.
+- More Debug-only launch arguments: `-MirrorCarPreview YES` shows the car screen in the iPhone window (bar, blurred
+  background and night mode without a CarPlay display), `-MirrorShowControls YES` keeps the bar visible,
+  `-MirrorReplayTest 12` saves a clip after 12 s (file only, no Photos), `-MirrorThermalTest serious` fakes the
+  thermal state (the simulator always reports *nominal*).
 
 ReplayKit itself doesn't run in the simulator – real mirroring only on a device.
 
@@ -131,6 +159,9 @@ ReplayKit itself doesn't run in the simulator – real mirroring only on a devic
 | Simulator, test pattern | 30 fps, 4–7 ms encoder → app. The simulator has no low-latency encoder (`-12908`) and ignores `MaxFrameDelayCount` (`-12900`); its encoder held frames back and deadlocked a "max 2 in flight" back-pressure rule. Fixed: without low-latency, force output after every frame, plus a 0.5 s escape hatch. |
 | iPhone 16 Pro, iOS 27.0.1, test pattern | Hardware low-latency encoder, 30 fps, 9 ms encoder → app. |
 | Simulator, 16:9 test pattern with black bars | Bars detected and cut ~2 s after start: 136 px per side (bars are 140 px; the 4 px rest is the safety margin), encoder switches 720×1560 → 720×1288, no frames dropped. |
+| Simulator, instant replay | `-MirrorReplayTest 14`: clip of 11.7 s (the buffer restarted when the border crop changed the format), 353 frames, 0.6 MB, written in 0.04 s; plays upright as 1288×720 with the rotation in the track transform. |
+| Simulator, heat protection | `-MirrorThermalTest serious`: encoder settings 1920×1080/12 Mbit/s → 1440×810/8 Mbit/s, 60 fps kept. |
+| Simulator, blurred background | Second display layer next to the main one, no decoder errors; 0.2 frames/s dropped for a moment while it waited for its first keyframe. |
 | iPhone + CarPlay Simulator, real broadcast | Car window 425×255 pt @2x (800×480 native), 49 pt safe-area inset → 752×510 px video area; encoder follows (346×752). Extension: 4 MB at start, 9–10 MB while encoding (limit 50 MB). 23 ms from screen to app incl. ReplayKit. |
 
 **BMW (23 Nov 2026, real car, wired iPhone 16 Pro):** CarPlay window 642×240 pt @3x (1440×540 native), 49 pt sidebar →
@@ -147,7 +178,8 @@ not possible with mirroring.
 ## Logs
 
 Both processes write to the App Group container (`Logs/app.log`, `Logs/broadcast.log`, viewable and shareable in the
-app under *Protokoll*) and a copy into their own container, because `devicectl` may not read App Group containers:
+app under *Log*) and a copy into their own container, because `devicectl` may not read App Group containers. The
+app's copy is also visible in the Files app (*On My iPhone › DashMirror › Logs*):
 
 ```bash
 xcrun devicectl device copy from --device <id> --domain-type appDataContainer \
@@ -175,6 +207,8 @@ xcrun devicectl device copy from --device <id> --domain-type appDataContainer \
   screenshots don't contain them, so ReplayKit probably captures the normal, bright image. To verify: does the car
   picture stay bright while the iPhone looks off?
 - A real car (BMW, wireless CarPlay), longer sessions with a warm iPhone, switching Maps ↔ DashMirror.
+- New features in the car: does the blur render on the head unit, does the BMW send a day/night signal (the log says
+  `Auto meldet Tag/Nacht`), does heat protection kick in on a warm day, how big is the bar on the 240 pt high screen.
 - iOS 27.2 and later.
 
 ## Project layout
@@ -187,6 +221,8 @@ xcrun devicectl device copy from --device <id> --domain-type appDataContainer \
 | Broadcast extension | `MirrorBroadcast/SampleHandler.swift` |
 | Socket server, CMSampleBuffer assembly | `DashMirror/Mirror/MirrorReceiver.swift`, `MirrorPipeline.swift` |
 | App state, settings, stats | `DashMirror/Mirror/MirrorHub.swift` |
+| Instant replay (ring buffer, MP4 passthrough, Photos) | `DashMirror/Mirror/ReplayBuffer.swift`, `ClipWriter.swift`, `ReplayRecorder.swift` |
+| Heat protection rule | `DashMirror/Mirror/ThermalPolicy.swift` |
 | Test pattern | `DashMirror/Mirror/TestPattern.swift` |
 | Car screen | `DashMirror/CarPlay/*` |
 | Driving lock | `DashMirror/Driving/*` |

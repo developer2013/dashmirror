@@ -54,6 +54,49 @@ final class MirrorHub {
         didSet { if autoCrop != oldValue { settingsChanged() } }
     }
 
+    /// Unscharfer Hintergrund statt schwarzer Raender (zweite Anzeige im Auto, nur solange Raender sichtbar sind).
+    var ambientBackground = UserDefaults.standard.object(forKey: "mirrorAmbient") as? Bool ?? true {
+        didSet {
+            guard ambientBackground != oldValue else { return }
+            UserDefaults.standard.set(ambientBackground, forKey: "mirrorAmbient")
+            MirrorLog.write("Unscharfer Hintergrund \(ambientBackground ? "an" : "aus")")
+        }
+    }
+
+    /// Nachtmodus: Bild im Auto abdunkeln (NightMode.swift).
+    var nightMode = NightMode(rawValue: UserDefaults.standard.string(forKey: "mirrorNight") ?? "") ?? .auto {
+        didSet {
+            guard nightMode != oldValue else { return }
+            UserDefaults.standard.set(nightMode.rawValue, forKey: "mirrorNight")
+            MirrorLog.write("Nachtmodus: \(nightMode.rawValue)")
+        }
+    }
+    /// Wie stark abgedunkelt wird (Deckkraft der schwarzen Schicht).
+    var nightStrength = UserDefaults.standard.object(forKey: "mirrorNightStrength") as? Double ?? 0.35 {
+        didSet { UserDefaults.standard.set(nightStrength, forKey: "mirrorNightStrength") }
+    }
+    /// Tag/Nacht laut Auto (Erscheinungsbild des CarPlay-Fensters); nil = kein Auto verbunden.
+    private(set) var carIsDark: Bool?
+
+    var nightDimActive: Bool {
+        switch nightMode {
+        case .off: false
+        case .always: true
+        case .auto: carIsDark == true
+        }
+    }
+
+    /// Hitzeschutz (ThermalPolicy.swift): bei heissem iPhone weniger Last fuer den Encoder.
+    var heatProtection = UserDefaults.standard.object(forKey: "heatProtection") as? Bool ?? true {
+        didSet {
+            guard heatProtection != oldValue else { return }
+            UserDefaults.standard.set(heatProtection, forKey: "heatProtection")
+            MirrorLog.write("Hitzeschutz \(heatProtection ? "an" : "aus")")
+            sendConfig()
+        }
+    }
+    private(set) var thermalState = MirrorHub.currentThermalState()
+
     /// Zoom im Auto (1 = Bildformat wie gewaehlt, bis 4). Reine Darstellung, aendert nichts am Strom.
     var zoom = UserDefaults.standard.object(forKey: "mirrorZoom") as? Double ?? 1 {
         didSet { UserDefaults.standard.set(zoom, forKey: "mirrorZoom") }
@@ -77,6 +120,8 @@ final class MirrorHub {
     let driving = DrivingLockMonitor()
 
     @ObservationIgnored let pipeline = MirrorPipeline()
+    /// Sofort-Wiederholung (fuellt den Ringpuffer der Pipeline, speichert Clips).
+    @ObservationIgnored let replay: ReplayRecorder
     @ObservationIgnored private var receiver: MirrorReceiver?
     @ObservationIgnored private var testPattern: TestPattern?
     @ObservationIgnored private var statsTimer: Timer?
@@ -86,10 +131,12 @@ final class MirrorHub {
     @ObservationIgnored private var reportTotals = MirrorPipeline.Stats()
     @ObservationIgnored private var started = false
 
-    private init() {}
+    private init() {
+        replay = ReplayRecorder(buffer: pipeline.replay)
+    }
 
-    /// Was der Encoder bekommt: Bildrate/Bitrate vom iPhone, Groesse vom Autodisplay (falls verbunden).
-    var effectiveSettings: MirrorSettings {
+    /// Was eingestellt ist: Bildrate/Bitrate vom iPhone, Groesse vom Autodisplay (falls verbunden).
+    var requestedSettings: MirrorSettings {
         var settings = MirrorSettings.standard
         settings.frameRate = frameRate
         settings.bitrate = bitrateMbps * 1_000_000
@@ -100,6 +147,14 @@ final class MirrorHub {
         }
         return settings
     }
+
+    /// Was der Encoder bekommt: das Eingestellte, bei heissem iPhone gesenkt.
+    var effectiveSettings: MirrorSettings {
+        heatProtection ? ThermalPolicy.adjust(requestedSettings, for: thermalState) : requestedSettings
+    }
+
+    /// Senkt der Hitzeschutz gerade etwas?
+    var heatReducing: Bool { effectiveSettings != requestedSettings }
 
     func start() {
         guard !started else { return }
@@ -139,6 +194,16 @@ final class MirrorHub {
         #if DEBUG
         // Test-Hilfe: `-MirrorTestPattern YES` startet das Testbild sofort (Simulator, CarPlay Simulator).
         if UserDefaults.standard.bool(forKey: "MirrorTestPattern") { setTestPattern(true) }
+        // Test-Hilfe: `-MirrorReplayTest 12` speichert nach 12 s einen Clip (nur Datei, ohne Fotos).
+        let replayDelay = UserDefaults.standard.double(forKey: "MirrorReplayTest")
+        if replayDelay > 0 {
+            DispatchQueue.main.asyncAfter(deadline: .now() + replayDelay) {
+                Task { @MainActor in
+                    let outcome = await MirrorHub.shared.replay.save()
+                    MirrorLog.write("Test: Clip-Ergebnis \(outcome)")
+                }
+            }
+        }
         #endif
     }
 
@@ -159,6 +224,7 @@ final class MirrorHub {
         carConnected = false
         carForeground = false
         carPixelSize = .zero
+        carIsDark = nil
         driving.release()
         sendConfig()
     }
@@ -172,6 +238,13 @@ final class MirrorHub {
         guard size.width > 0, size.height > 0, size != carPixelSize else { return }
         carPixelSize = size
         sendConfig()
+    }
+
+    /// Tag/Nacht des Autos (vom CarPlay-Fenster, bei jedem Wechsel des Erscheinungsbilds).
+    func setCarDark(_ dark: Bool) {
+        guard dark != carIsDark else { return }
+        carIsDark = dark
+        MirrorLog.write("Autodisplay: Auto meldet \(dark ? "Nacht (dunkel)" : "Tag (hell)")")
     }
 
     // MARK: Testbild
@@ -244,6 +317,15 @@ final class MirrorHub {
         if dropped != droppedPerSecond { droppedPerSecond = dropped }
         if let latency, abs(latency - (latencyMs ?? -100)) >= 1 { latencyMs = latency }
 
+        // Temperatur: billig abzufragen; die Mitteilung von iOS kaeme im Hintergrund nicht sicher an.
+        let thermal = Self.currentThermalState()
+        if thermal != thermalState {
+            MirrorLog.write("Hitzeschutz: iPhone \(thermalState.logName) -> \(thermal.logName)"
+                            + (heatProtection ? "" : " (Hitzeschutz aus)"))
+            thermalState = thermal
+            if heatProtection { sendConfig() }
+        }
+
         reportSeconds += seconds
         reportTotals.frames += stats.frames
         reportTotals.bytes += stats.bytes
@@ -259,12 +341,25 @@ final class MirrorHub {
                 ? String(format: "%.0f ms", Double(totals.latencyTotal) / Double(totals.latencySamples) / 1_000_000) : "–"
             // ReplayKit liefert nur bei Bildaenderung – stiller Bildschirm = wenige Bilder, das ist kein Fehler.
             MirrorLog.write(String(format: "Empfang (10 s): %.1f B/s, %.1f Mbit/s, Latenz %@, verworfen %.1f/s, %@, "
-                                   + "Auto %@, Fahrsperre %@",
+                                   + "Auto %@, Fahrsperre %@, iPhone %@",
                                    Double(totals.frames) / window, Double(totals.bytes) * 8 / window / 1_000_000,
                                    averageLatency, Double(totals.dropped) / window,
                                    "\(Int(frameSize.width))x\(Int(frameSize.height))",
                                    carConnected ? (carForeground ? "vorn" : "hinten") : "nein",
-                                   driving.isLocked ? "AN" : "aus"))
+                                   driving.isLocked ? "AN" : "aus", thermalState.logName))
         }
+    }
+
+    private static func currentThermalState() -> ProcessInfo.ThermalState {
+        #if DEBUG
+        // Test-Hilfe: `-MirrorThermalTest serious` – der Simulator meldet sonst immer "normal".
+        switch UserDefaults.standard.string(forKey: "MirrorThermalTest") {
+        case "fair": return .fair
+        case "serious": return .serious
+        case "critical": return .critical
+        default: break
+        }
+        #endif
+        return ProcessInfo.processInfo.thermalState
     }
 }

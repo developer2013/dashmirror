@@ -10,6 +10,8 @@
 //  - Fehlt eins, wird es bei der Quelle angefordert (hoechstens alle 300 ms).
 //  - Jedes Bild ist "sofort anzeigen" markiert – kein Zeitplan, kein Puffer, minimale Latenz.
 //
+//  Ausserdem geht jedes Bild in den Ringpuffer der Sofort-Wiederholung (`replay`) – auch ohne Anzeige.
+//
 
 import AVFoundation
 import CoreMedia
@@ -28,6 +30,9 @@ nonisolated final class MirrorPipeline: @unchecked Sendable {
     var onOrientation: (@Sendable (UInt8) -> Void)?
     var onDimensions: (@Sendable (Int, Int) -> Void)?
     var requestKeyframe: (@Sendable () -> Void)?
+
+    /// Die letzten 30 s fuer die Sofort-Wiederholung (gefuellt nur, wenn eingeschaltet).
+    let replay = ReplayBuffer()
 
     private final class Slot {
         let renderer: AVSampleBufferVideoRenderer
@@ -71,6 +76,7 @@ nonisolated final class MirrorPipeline: @unchecked Sendable {
         lock.withLock {
             client = id
             format = nil
+            replay.clear()
             for slot in slots.values {
                 slot.renderer.flush()
                 slot.needsKeyframe = true
@@ -113,6 +119,7 @@ nonisolated final class MirrorPipeline: @unchecked Sendable {
         }
         if let format, CMFormatDescriptionEqual(format, otherFormatDescription: description) { return }
         format = description
+        replay.setFormat(description)
         let dimensions = CMVideoFormatDescriptionGetDimensions(description)
         MirrorLog.write("Empfang: Bildformat \(dimensions.width)x\(dimensions.height)")
         onDimensions?(Int(dimensions.width), Int(dimensions.height))
@@ -130,6 +137,11 @@ nonisolated final class MirrorPipeline: @unchecked Sendable {
         if header.orientation != orientation {
             orientation = header.orientation
             onOrientation?(orientation)
+        }
+
+        if format != nil {
+            replay.append(payload, time: header.timestamp > 0 ? header.timestamp : now,
+                          keyframe: header.isKeyframe, orientation: header.orientation)
         }
 
         guard !slots.isEmpty else { return }       // z. B. Fahrsperre: empfangen ja, anzeigen nein

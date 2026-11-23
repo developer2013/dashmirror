@@ -10,6 +10,7 @@
 //
 
 import CoreLocation
+import Photos
 import SwiftUI
 
 struct ContentView: View {
@@ -61,6 +62,7 @@ struct ContentView: View {
                         ForEach(MirrorFit.allCases) { Text(verbatim: $0.title).tag($0) }
                     }
                     Text(verbatim: hub.fit.detail).font(.caption).foregroundStyle(.secondary)
+                    Toggle("Blurred background instead of black bars", isOn: $hub.ambientBackground)
                     Toggle("Cut off black borders", isOn: $hub.autoCrop)
                     VStack(alignment: .leading, spacing: 4) {
                         LabeledContent("Zoom", value: String(format: "%.1f×", locale: .ui, hub.zoom))
@@ -72,8 +74,27 @@ struct ContentView: View {
                 } header: {
                     Text("Car")
                 } footer: {
-                    Text("Holding the iPhone in landscape fills wide car displays best. Cutting off borders removes black bars that games leave themselves (e.g. for the Dynamic Island). In the car: tap = picture format, two fingers = zoom (if the car display supports it), drag = move.")
+                    Text("Holding the iPhone in landscape fills wide car displays best. Cutting off borders removes black bars that games leave themselves (e.g. for the Dynamic Island). In the car: tap = controls (picture format, clip, info), press and hold = save clip, two fingers = zoom (if the car display supports it), drag = move.")
                 }
+
+                Section {
+                    Picker("Night mode", selection: $hub.nightMode) {
+                        ForEach(NightMode.allCases) { Text(verbatim: $0.title).tag($0) }
+                    }
+                    if hub.nightMode != .off {
+                        VStack(alignment: .leading, spacing: 4) {
+                            LabeledContent("Dimming", value: String(format: "%.0f %%", locale: .ui, hub.nightStrength * 100))
+                            Slider(value: $hub.nightStrength, in: NightMode.strengthRange)
+                        }
+                    }
+                    LabeledContent("Car reports", value: carAppearanceText)
+                } header: {
+                    Text("Night mode")
+                } footer: {
+                    Text("Dims the picture in the car at night so bright games don’t dazzle. “Automatic” follows the car’s day/night switch (headlights or light sensor). If the car always reports night, choose “Always” or “Off”.")
+                }
+
+                ReplaySection(replay: hub.replay, sourceConnected: hub.sourceConnected)
 
                 DrivingSection(monitor: hub.driving)
 
@@ -88,10 +109,15 @@ struct ContentView: View {
                         Text("Normal (12 Mbit/s)").tag(12)
                         Text("High (20 Mbit/s)").tag(20)
                     }
+                    Toggle("Heat protection", isOn: $hub.heatProtection)
+                    LabeledContent("iPhone temperature", value: hub.thermalState.title)
+                    if hub.heatReducing {
+                        Text(verbatim: reducedText).font(.caption).foregroundStyle(.orange)
+                    }
                 } header: {
                     Text("Quality")
                 } footer: {
-                    Text("Applies immediately, even during a running broadcast. The resolution follows the car display automatically.")
+                    Text("Applies immediately, even during a running broadcast. The resolution follows the car display automatically. Heat protection lowers resolution and data rate when the iPhone gets hot, the frame rate only at the hottest level – before iOS throttles the game.")
                 }
 
                 Section {
@@ -129,6 +155,10 @@ struct ContentView: View {
         }
         // Die Fahrsperre-Anzeige am iPhone nur live halten, solange die App vorn ist (GPS kostet Akku).
         .onChange(of: scenePhase, initial: true) { _, phase in
+            if phase == .active {
+                // Clips, die im Auto ohne Fotos-Zugriff gespeichert wurden, jetzt nachholen.
+                Task { await hub.replay.importPending() }
+            }
             if phase == .active, !holdsDrivingMonitor {
                 hub.driving.acquire()
                 holdsDrivingMonitor = true
@@ -146,6 +176,18 @@ struct ContentView: View {
         case .testPattern: return String(localized: "Test pattern", bundle: .ui)
         case nil: return String(localized: "connected", bundle: .ui)
         }
+    }
+
+    private var carAppearanceText: String {
+        guard let dark = hub.carIsDark else { return "–" }
+        return dark ? String(localized: "night", bundle: .ui) : String(localized: "day", bundle: .ui)
+    }
+
+    private var reducedText: String {
+        let settings = hub.effectiveSettings
+        return String(format: String(localized: "Lowered to max. %1$d × %2$d, %3$d fps, %4$d Mbit/s", bundle: .ui),
+                      locale: .ui, settings.maxLongSide, settings.maxShortSide, settings.frameRate,
+                      settings.bitrate / 1_000_000)
     }
 
     private var carText: String {
@@ -185,6 +227,45 @@ private struct StatusHeader: View {
         let car = hub.carConnected ? String(localized: "Car connected", bundle: .ui) : String(localized: "No car connected", bundle: .ui)
         if hub.carConnected, hub.driving.isLocked { return car + " · " + String(localized: "Driving lock active", bundle: .ui) }
         return car
+    }
+}
+
+/// Sofort-Wiederholung: an/aus, Clip vom iPhone aus speichern, Fotos-Zugriff und wartende Clips.
+private struct ReplaySection: View {
+    @Bindable var replay: ReplayRecorder
+    let sourceConnected: Bool
+    @Environment(\.locale) private var locale
+
+    var body: some View {
+        let _ = locale
+        Section {
+            Toggle("Keep the last 30 seconds", isOn: $replay.enabled)
+            Button {
+                Task { _ = await replay.save() }
+            } label: {
+                Label(replay.isSaving ? String(localized: "Saving…", bundle: .ui)
+                                      : String(localized: "Save last 30 seconds", bundle: .ui),
+                      systemImage: "record.circle")
+            }
+            .disabled(!replay.enabled || replay.isSaving || !sourceConnected)
+            if let outcome = replay.lastOutcome {
+                Text(verbatim: outcome.message).font(.caption).foregroundStyle(.secondary)
+            }
+            if replay.pendingClips > 0 {
+                LabeledContent("Waiting for Photos", value: "\(replay.pendingClips)")
+            }
+            if replay.photosAccess == .notDetermined {
+                Button("Allow Photos access") { Task { await replay.requestPhotosAccess() } }
+            } else if !replay.hasPhotosAccess {
+                Button("Allow in Settings") {
+                    if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) }
+                }
+            }
+        } header: {
+            Text("Instant replay")
+        } footer: {
+            Text("Saves what just happened as a video, without sound. In the car: tap › “Save clip”, or press and hold. Clips go to Photos; until access is allowed they wait in the Files app (On My iPhone › DashMirror › Clips).")
+        }
     }
 }
 

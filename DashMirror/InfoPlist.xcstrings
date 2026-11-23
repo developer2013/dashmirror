@@ -32,6 +32,22 @@
           }
         }
       }
+    },
+    "NSPhotoLibraryAddUsageDescription" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saves instant-replay clips of your game to Photos."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Speichert Sofort-Wiederholungen deines Spiels in Fotos."
+          }
+        }
+      }
     }
   },
   "version" : "1.0"
