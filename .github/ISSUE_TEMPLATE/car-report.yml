@@ -1,5 +1,5 @@
 name: Car report
-description: How DashMirror runs in your car – working or not. Please test while parked.
+description: How DashMirror runs in your car, working or not. Please test while parked.
 title: "[Car] "
 labels: ["car report"]
 body:
