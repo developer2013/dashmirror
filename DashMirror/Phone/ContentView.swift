@@ -47,11 +47,23 @@ struct ContentView: View {
                     }
                 }
 
-                Section("Auto") {
+                Section {
                     LabeledContent("CarPlay", value: carText)
                     Picker("Bildformat", selection: $hub.fit) {
                         ForEach(MirrorFit.allCases, id: \.self) { Text($0.title).tag($0) }
                     }
+                    Toggle("Schwarze Ränder abschneiden", isOn: $hub.autoCrop)
+                    VStack(alignment: .leading, spacing: 4) {
+                        LabeledContent("Zoom", value: String(format: "%.1f×", hub.zoom))
+                        Slider(value: $hub.zoom, in: 1...3, step: 0.05)
+                    }
+                    if hub.zoom > 1.001 || hub.panFraction != .zero {
+                        Button("Zoom und Ausschnitt zurücksetzen") { hub.resetZoom() }
+                    }
+                } header: {
+                    Text("Auto")
+                } footer: {
+                    Text("iPhone quer halten füllt breite Autodisplays am besten. Ränder abschneiden entfernt schwarze Streifen, die Spiele selbst lassen (z. B. wegen der Dynamic Island). Im Auto: tippen = Bildformat, zwei Finger = zoomen, ziehen = Ausschnitt, doppelt tippen = zurücksetzen.")
                 }
 
                 DrivingSection(monitor: hub.driving)

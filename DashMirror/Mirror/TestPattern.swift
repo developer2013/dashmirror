@@ -84,12 +84,20 @@ nonisolated final class TestPattern: @unchecked Sendable {
         streamer.push(buffer, orientation: 6, captureTime: Mirror.now())
     }
 
-    private func draw(in context: CGContext, size: CGSize) {
+    private func draw(in context: CGContext, size full: CGSize) {
         UIGraphicsPushContext(context)
         defer { UIGraphicsPopContext() }
 
-        // Farbbalken
-        let colors: [UIColor] = [.white, .systemYellow, .cyan, .systemGreen, .magenta, .systemRed, .systemBlue, .black]
+        // Wie ein 16:9-Spiel auf dem breiteren iPhone: links und rechts schwarze Streifen. Ist "Raender abschneiden"
+        // an, muessen sie im Auto verschwinden (Encoder: "Raender abgeschnitten: ... Inhalt 720x1280").
+        UIColor.black.setFill()
+        UIRectFill(CGRect(origin: .zero, size: full))
+        let contentWidth = (full.height * 16 / 9).rounded()
+        context.translateBy(x: ((full.width - contentWidth) / 2).rounded(), y: 0)
+        let size = CGSize(width: contentWidth, height: full.height)
+
+        // Farbbalken (ohne Schwarz – sonst saehe der rechte Rand selbst wie ein schwarzer Streifen aus)
+        let colors: [UIColor] = [.white, .systemYellow, .cyan, .systemGreen, .magenta, .systemRed, .systemBlue, .darkGray]
         let barWidth = size.width / CGFloat(colors.count)
         for (index, color) in colors.enumerated() {
             color.setFill()
@@ -98,8 +106,8 @@ nonisolated final class TestPattern: @unchecked Sendable {
 
         // Laufender Balken: Ruckeln und Aussetzer sieht man sofort.
         let seconds = Double(Mirror.now() - started) / 1_000_000_000
-        let x = CGFloat((seconds * 500).truncatingRemainder(dividingBy: Double(size.width)))
-        UIColor.black.setFill()
+        let x = CGFloat((seconds * 500).truncatingRemainder(dividingBy: Double(size.width - 40)))
+        UIColor(white: 0.25, alpha: 1).setFill()
         UIRectFill(CGRect(x: 0, y: size.height * 0.7, width: size.width, height: size.height * 0.3))
         UIColor.white.setFill()
         UIRectFill(CGRect(x: x, y: size.height * 0.7, width: 40, height: size.height * 0.3))
@@ -114,9 +122,9 @@ nonisolated final class TestPattern: @unchecked Sendable {
             .foregroundColor: UIColor.white,
             .backgroundColor: UIColor.black.withAlphaComponent(0.75),
         ]
-        (" ↑ oben – TESTBILD " as NSString).draw(at: CGPoint(x: size.width * 0.28, y: 40), withAttributes: big)
+        (" ↑ oben – TESTBILD " as NSString).draw(at: CGPoint(x: size.width * 0.2, y: 40), withAttributes: big)
         (String(format: " Bild %d · %.1f s ", frame, seconds) as NSString)
-            .draw(at: CGPoint(x: size.width * 0.34, y: 160), withAttributes: small)
+            .draw(at: CGPoint(x: size.width * 0.3, y: 160), withAttributes: small)
         // Ecken: zeigen, ob das Bild gespiegelt statt gedreht ankommt.
         (" links oben " as NSString).draw(at: CGPoint(x: 12, y: 12), withAttributes: small)
         let corner = " rechts unten " as NSString

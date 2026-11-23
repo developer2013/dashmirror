@@ -58,6 +58,8 @@ nonisolated final class MirrorEncoder: @unchecked Sendable {
     /// Ohne Low-Latency-Encoder (z. B. Simulator) halten Encoder Bilder fuer die Vorausschau zurueck und
     /// ignorieren MaxFrameDelayCount (-12900). Dann nach jedem Bild die Ausgabe erzwingen.
     private var completeEachFrame = false
+    private var detector = BorderDetector()
+    private var appliedCrop = BorderDetector.Crop()
     // Atomar statt unter `lock`: Die Ausgabe von VideoToolbox kann auch synchron INNERHALB von
     // EncodeFrame kommen, und dort ist `lock` schon gehalten (NSLock ist nicht rekursiv).
     private let forceKeyframe = Atomic<Bool>(true)
@@ -79,6 +81,7 @@ nonisolated final class MirrorEncoder: @unchecked Sendable {
         lock.lock()
         defer { lock.unlock() }
         guard new != settings else { return }
+        if !new.autoCrop { detector.reset() }
         settings = new
         MirrorLog.write("Encoder: neue Vorgaben \(new)")
         // Groesse: Das naechste Bild rechnet die Zielgroesse neu und baut die Sitzung bei Bedarf neu.
@@ -135,8 +138,16 @@ nonisolated final class MirrorEncoder: @unchecked Sendable {
             counters.flushes += 1
         }
 
-        let source = PixelSize(width: CVPixelBufferGetWidth(pixelBuffer), height: CVPixelBufferGetHeight(pixelBuffer))
+        let full = PixelSize(width: CVPixelBufferGetWidth(pixelBuffer), height: CVPixelBufferGetHeight(pixelBuffer))
         let format = CVPixelBufferGetPixelFormatType(pixelBuffer)
+        // Schwarze Raender weg: Der Zuschnitt verkleinert die Quelle, die Zielgroesse richtet sich danach.
+        let crop = settings.autoCrop ? detector.update(pixelBuffer, now: Mirror.now()) : BorderDetector.Crop()
+        if crop != appliedCrop {
+            MirrorLog.write(crop.isZero ? "Raender: kein Zuschnitt mehr"
+                            : "Raender abgeschnitten: \(crop) – Inhalt \(full.width - 2 * crop.dx)x\(full.height - 2 * crop.dy)")
+            appliedCrop = crop
+        }
+        let source = PixelSize(width: full.width - 2 * crop.dx, height: full.height - 2 * crop.dy)
         let target = Self.targetSize(for: source, settings: settings)
         if session == nil || target != size || format != sourceFormat {
             guard rebuild(size: target, format: format) else { return false }
@@ -144,7 +155,8 @@ nonisolated final class MirrorEncoder: @unchecked Sendable {
         guard let session else { return false }
 
         var input = pixelBuffer
-        if target != source {
+        if !crop.isZero || target != full {
+            Self.setCleanAperture(on: pixelBuffer, crop: crop, full: full)
             guard let scaled = scale(pixelBuffer) else {
                 counters.skippedBusy += 1
                 return false
@@ -227,6 +239,10 @@ nonisolated final class MirrorEncoder: @unchecked Sendable {
 
         var newTransfer: VTPixelTransferSession?
         VTPixelTransferSessionCreate(allocator: kCFAllocatorDefault, pixelTransferSessionOut: &newTransfer)
+        if let newTransfer {
+            // Zuschneiden (Clean Aperture der Quelle) und Verkleinern in einem Schritt, ohne Zwischenkopie.
+            Self.set(newTransfer, kVTPixelTransferPropertyKey_ScalingMode, kVTScalingMode_CropSourceToCleanAperture)
+        }
         transfer = newTransfer
 
         let attributes: [String: Any] = [
@@ -260,6 +276,22 @@ nonisolated final class MirrorEncoder: @unchecked Sendable {
         transfer = nil
         pool = nil
         size = .zero
+    }
+
+    /// Mittiger Zuschnitt als Clean Aperture am Quellpuffer (Versatz 0, weil symmetrisch). Ohne Zuschnitt wird die
+    /// Angabe entfernt – ReplayKit verwendet seine Puffer wieder, eine alte Angabe wuerde sonst haengen bleiben.
+    private static func setCleanAperture(on buffer: CVPixelBuffer, crop: BorderDetector.Crop, full: PixelSize) {
+        guard !crop.isZero else {
+            CVBufferRemoveAttachment(buffer, kCVImageBufferCleanApertureKey)
+            return
+        }
+        let aperture: [String: Any] = [
+            kCVImageBufferCleanApertureWidthKey as String: full.width - 2 * crop.dx,
+            kCVImageBufferCleanApertureHeightKey as String: full.height - 2 * crop.dy,
+            kCVImageBufferCleanApertureHorizontalOffsetKey as String: 0,
+            kCVImageBufferCleanApertureVerticalOffsetKey as String: 0,
+        ]
+        CVBufferSetAttachment(buffer, kCVImageBufferCleanApertureKey, aperture as CFDictionary, .shouldNotPropagate)
     }
 
     private func scale(_ source: CVPixelBuffer) -> CVPixelBuffer? {

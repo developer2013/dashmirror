@@ -50,13 +50,16 @@ xcodebuild -project DashMirror.xcodeproj -scheme DashMirror \
 4. **The encoder must not deadlock.** Without the low-latency encoder, encoders hold frames back; hence
    `completeEachFrame` plus the escape hatch (see README "Measurements"). Verify back-pressure changes in the
    simulator with the test pattern.
-5. **The app plays no sound** and activates no `AVAudioSession` – it would interrupt the game's audio.
-6. **Both CarPlay entitlements** (`carplay-video` + `carplay-audio`) or none. Switch only via
+5. **Border cropping never cuts content.** `BorderDetector` crops per axis only the minimum of both sides, shrinks
+   the crop immediately and grows it only after 2 s; nearly black frames change nothing. Zoom/pan on the car screen
+   is display-only (layer transform), never re-encoding.
+6. **The app plays no sound** and activates no `AVAudioSession` – it would interrupt the game's audio.
+7. **Both CarPlay entitlements** (`carplay-video` + `carplay-audio`) or none. Switch only via
    `DASHMIRROR_ENTITLEMENTS`. Simulator builds always use the CarPlay file.
-7. **Code in `Shared/` is explicitly `nonisolated`** (app: MainActor by default, extension: not) and runs on
+8. **Code in `Shared/` is explicitly `nonisolated`** (app: MainActor by default, extension: not) and runs on
    background threads. Callbacks there are `@Sendable`; back into the app via `Task { @MainActor in … }`.
    No `UIApplication` in `Shared/` (the extension builds with `APPLICATION_EXTENSION_API_ONLY`).
-8. **Wire format** (`MirrorProtocol.swift`): change both sides together; bump the `MRR1` magic on incompatible changes.
+9. **Wire format** (`MirrorProtocol.swift`): change both sides together; bump the `MRR1` magic on incompatible changes.
    Every source sends `hello` with its `MirrorSource` first; the screen source ends a running test pattern.
 
 ## Style

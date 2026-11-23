@@ -69,6 +69,29 @@ final class MirrorHub {
     var bitrateMbps = MirrorSettings.load().bitrate / 1_000_000 {
         didSet { if bitrateMbps != oldValue { settingsChanged() } }
     }
+    /// Schwarze Raender im iPhone-Bild abschneiden (macht die Erweiterung vor dem Kodieren).
+    var autoCrop = MirrorSettings.load().autoCrop {
+        didSet { if autoCrop != oldValue { settingsChanged() } }
+    }
+
+    /// Zoom im Auto (1 = Bildformat wie gewaehlt, bis 4). Reine Darstellung, aendert nichts am Strom.
+    var zoom = UserDefaults.standard.object(forKey: "mirrorZoom") as? Double ?? 1 {
+        didSet { UserDefaults.standard.set(zoom, forKey: "mirrorZoom") }
+    }
+    /// Ausschnitt beim Zoomen, je Achse -1...1 (Anteil der moeglichen Verschiebung) – passt so auch nach
+    /// Wechsel von Zoom, Bildformat oder Display.
+    var panFraction = CGPoint(x: UserDefaults.standard.double(forKey: "mirrorPanX"),
+                              y: UserDefaults.standard.double(forKey: "mirrorPanY")) {
+        didSet {
+            UserDefaults.standard.set(panFraction.x, forKey: "mirrorPanX")
+            UserDefaults.standard.set(panFraction.y, forKey: "mirrorPanY")
+        }
+    }
+
+    func resetZoom() {
+        zoom = 1
+        panFraction = .zero
+    }
 
     private(set) var testPatternRunning = false
     let driving = DrivingLockMonitor()
@@ -90,6 +113,7 @@ final class MirrorHub {
         var settings = MirrorSettings.standard
         settings.frameRate = frameRate
         settings.bitrate = bitrateMbps * 1_000_000
+        settings.autoCrop = autoCrop
         if carPixelSize.width > 0, carPixelSize.height > 0 {
             settings.maxLongSide = min(settings.maxLongSide, Int(max(carPixelSize.width, carPixelSize.height)))
             settings.maxShortSide = min(settings.maxShortSide, Int(min(carPixelSize.width, carPixelSize.height)))
@@ -213,6 +237,7 @@ final class MirrorHub {
         var stored = MirrorSettings.load()
         stored.frameRate = frameRate
         stored.bitrate = bitrateMbps * 1_000_000
+        stored.autoCrop = autoCrop
         stored.save()
         sendConfig()
     }

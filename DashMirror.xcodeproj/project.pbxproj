@@ -35,9 +35,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		C1A00000000000000000000F /* Signing.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Signing.xcconfig; path = Config/Signing.xcconfig; sourceTree = "<group>"; };
 		B0E5C89C30B424B700F67CEC /* DashMirror.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DashMirror.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C1A000000000000000000001 /* MirrorBroadcast.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = MirrorBroadcast.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		C1A00000000000000000000F /* Signing.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Signing.xcconfig; path = Config/Signing.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -137,8 +137,8 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				C1A000000000000000000003 /* MirrorBroadcast */,
 				C1A000000000000000000002 /* Shared */,
+				C1A000000000000000000003 /* MirrorBroadcast */,
 			);
 			name = MirrorBroadcast;
 			packageProductDependencies = (

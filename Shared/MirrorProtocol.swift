@@ -114,16 +114,20 @@ nonisolated struct MirrorSettings: Equatable, CustomStringConvertible {
     var maxShortSide: Int
     var frameRate: Int
     var bitrate: Int
+    /// Schwarze Raender im iPhone-Bild erkennen und vor dem Kodieren wegschneiden (BorderDetector).
+    var autoCrop = true
 
     static let standard = MirrorSettings(maxLongSide: 1920, maxShortSide: 1080, frameRate: 60, bitrate: 12_000_000)
 
     var description: String {
-        "max \(maxLongSide)x\(maxShortSide), \(frameRate) B/s, \(bitrate / 1_000_000) Mbit/s"
+        "max \(maxLongSide)x\(maxShortSide), \(frameRate) B/s, \(bitrate / 1_000_000) Mbit/s, "
+            + "Raender \(autoCrop ? "abschneiden" : "lassen")"
     }
 
+    /// 5 x UInt32: lange Seite, kurze Seite, Bildrate, Bitrate, Flags (Bit 0 = Raender abschneiden).
     var payload: Data {
-        var data = Data(capacity: 16)
-        for value in [maxLongSide, maxShortSide, frameRate, bitrate] {
+        var data = Data(capacity: 20)
+        for value in [maxLongSide, maxShortSide, frameRate, bitrate, autoCrop ? 1 : 0] {
             withUnsafeBytes(of: UInt32(clamping: value).littleEndian) { data.append(contentsOf: $0) }
         }
         return data
@@ -134,12 +138,14 @@ nonisolated struct MirrorSettings: Equatable, CustomStringConvertible {
         let defaults = Mirror.sharedDefaults
         if let rate = defaults?.object(forKey: "frameRate") as? Int, rate > 0 { settings.frameRate = rate }
         if let bitrate = defaults?.object(forKey: "bitrate") as? Int, bitrate > 0 { settings.bitrate = bitrate }
+        if let autoCrop = defaults?.object(forKey: "autoCrop") as? Bool { settings.autoCrop = autoCrop }
         return settings
     }
 
     func save() {
         Mirror.sharedDefaults?.set(frameRate, forKey: "frameRate")
         Mirror.sharedDefaults?.set(bitrate, forKey: "bitrate")
+        Mirror.sharedDefaults?.set(autoCrop, forKey: "autoCrop")
     }
 }
 
@@ -150,7 +156,8 @@ extension MirrorSettings {
             Int(UInt32(littleEndian: payload.loadUnaligned(fromByteOffset: index * 4, as: UInt32.self)))
         }
         self.init(maxLongSide: max(value(0), 16), maxShortSide: max(value(1), 16),
-                  frameRate: max(value(2), 1), bitrate: max(value(3), 500_000))
+                  frameRate: max(value(2), 1), bitrate: max(value(3), 500_000),
+                  autoCrop: payload.count >= 20 ? value(4) & 1 != 0 : true)
     }
 }
 

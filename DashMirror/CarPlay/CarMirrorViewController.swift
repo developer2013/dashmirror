@@ -97,8 +97,20 @@ final class CarMirrorViewController: UIViewController {
             testWarning.topAnchor.constraint(equalTo: safe.topAnchor, constant: 8),
         ])
 
-        view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapped)))
-        view.addGestureRecognizer(UILongPressGestureRecognizer(target: self, action: #selector(longPressed(_:))))
+        // Tippen = Bildformat, Doppeltippen = Zoom zuruecksetzen, zwei Finger = zoomen, ziehen = Ausschnitt,
+        // lange druecken = Messwerte. Ob ein Autodisplay Mehrfinger-Gesten liefert, haengt vom Auto ab –
+        // am iPhone gibt es deshalb denselben Zoom als Regler.
+        let doubleTap = UITapGestureRecognizer(target: self, action: #selector(doubleTapped))
+        doubleTap.numberOfTapsRequired = 2
+        let tap = UITapGestureRecognizer(target: self, action: #selector(tapped))
+        tap.require(toFail: doubleTap)
+        let pinch = UIPinchGestureRecognizer(target: self, action: #selector(pinched(_:)))
+        let pan = UIPanGestureRecognizer(target: self, action: #selector(panned(_:)))
+        pan.maximumNumberOfTouches = 2
+        for gesture in [doubleTap, tap, pinch, pan, UILongPressGestureRecognizer(target: self, action: #selector(longPressed(_:)))] {
+            gesture.delegate = self
+            view.addGestureRecognizer(gesture)
+        }
         observe()
     }
 
@@ -136,6 +148,9 @@ final class CarMirrorViewController: UIViewController {
         videoView.isHidden = !visible || !streaming
         videoView.orientation = hub.orientation
         videoView.fit = hub.fit
+        videoView.videoSize = hub.frameSize
+        videoView.zoom = hub.zoom
+        videoView.panFraction = hub.panFraction
 
         if locked {
             showMessage(symbol: "car.fill", title: "Während der Fahrt ausgeblendet",
@@ -186,6 +201,40 @@ final class CarMirrorViewController: UIViewController {
         MirrorLog.write("Autodisplay: Bildformat \(hub.fit.rawValue)")
     }
 
+    @objc private func doubleTapped() {
+        hub.resetZoom()
+        showToast("Zoom zurückgesetzt")
+        MirrorLog.write("Autodisplay: Zoom zurueckgesetzt")
+    }
+
+    private var pinchStartZoom: Double = 1
+
+    @objc private func pinched(_ gesture: UIPinchGestureRecognizer) {
+        switch gesture.state {
+        case .began:
+            pinchStartZoom = hub.zoom
+        case .changed:
+            hub.zoom = Double((CGFloat(pinchStartZoom) * gesture.scale).clamped(to: MirrorVideoView.zoomRange))
+        case .ended, .cancelled:
+            showToast(String(format: "Zoom %.1f×", hub.zoom))
+            MirrorLog.write(String(format: "Autodisplay: Zoom %.2f", hub.zoom))
+        default:
+            break
+        }
+    }
+
+    @objc private func panned(_ gesture: UIPanGestureRecognizer) {
+        guard gesture.state == .changed else { return }
+        let delta = gesture.translation(in: videoView)
+        gesture.setTranslation(.zero, in: videoView)
+        // Verschiebung in Punkten -> Anteil der moeglichen Verschiebung. Ohne Zoom gibt es nichts zu verschieben.
+        let limit = videoView.maxPan()
+        var fraction = hub.panFraction
+        if limit.x > 0 { fraction.x = (fraction.x + delta.x / limit.x).clamped(to: -1...1) }
+        if limit.y > 0 { fraction.y = (fraction.y + delta.y / limit.y).clamped(to: -1...1) }
+        if fraction != hub.panFraction { hub.panFraction = fraction }
+    }
+
     @objc private func longPressed(_ gesture: UILongPressGestureRecognizer) {
         guard gesture.state == .began else { return }
         showsHUD.toggle()
@@ -199,5 +248,14 @@ final class CarMirrorViewController: UIViewController {
         let work = DispatchWorkItem { [weak self] in self?.toast.isHidden = true }
         toastWork = work
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.6, execute: work)
+    }
+}
+
+extension CarMirrorViewController: UIGestureRecognizerDelegate {
+    /// Zoomen und Verschieben gleichzeitig (zwei Finger), sonst muesste man absetzen.
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
+                           shouldRecognizeSimultaneouslyWith other: UIGestureRecognizer) -> Bool {
+        (gestureRecognizer is UIPinchGestureRecognizer && other is UIPanGestureRecognizer)
+            || (gestureRecognizer is UIPanGestureRecognizer && other is UIPinchGestureRecognizer)
     }
 }

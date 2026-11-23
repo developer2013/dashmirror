@@ -66,8 +66,18 @@ CarPlay window (UIWindowScene under the role "UIWindowSceneSessionRoleCarPlay")
 4. Switch to your game, put the iPhone down in landscape, play with the controller.
 5. Set Auto-Lock to *Never* – the picture freezes when the iPhone locks.
 
-On the car screen: **tap** = picture format (fit → fill → stretch), **long press** = show stats.
+On the car screen: **tap** = picture format (fit → fill → stretch), **pinch** = zoom, **drag** = move the zoomed
+image, **double tap** = reset zoom, **long press** = show stats. Whether a head unit delivers multi-touch depends on
+the car, so the iPhone has the same zoom as a slider.
 On the iPhone: frame rate (30/60) and quality (6/12/20 Mbit/s) apply immediately; resolution follows the car display.
+
+Hold the iPhone in landscape: its image is 2.17:1 and fills a wide car display almost completely. Portrait apps stay
+a narrow strip; use zoom for those.
+
+**Black borders are cut off automatically.** Many games leave black bars for the Dynamic Island or render 16:9 on the
+19.5:9 screen. The extension detects them and crops before encoding, so the actual content gets bigger. Per axis it
+only cuts what is black on *both* sides; when content reaches into a border, the crop shrinks at once, it only grows
+after 2 s of stable measurements (dark scenes don't zoom). Toggle: *Schwarze Ränder abschneiden*.
 
 ## Driving lock
 
@@ -90,8 +100,9 @@ xcodebuild -project DashMirror.xcodeproj -scheme DashMirror \
 ```
 
 - **Test pattern** (Debug, launch argument `-MirrorTestPattern YES`, also a toggle in the app): runs through the exact
-  same chain as the extension (encoder, socket, decoder, rotation). It is drawn portrait with orientation `.right` –
-  like ReplayKit with the iPhone in landscape. If "↑ oben" stands upright and "links oben" is top-left, rotation is right.
+  same chain as the extension (encoder, socket, border crop, decoder, rotation). It is drawn portrait with orientation
+  `.right` – like ReplayKit with the iPhone in landscape – and as a 16:9 game with black side bars. If "↑ oben" stands
+  upright, "links oben" is top-left and the bars disappear after ~2 s, rotation and cropping work.
 - **CarPlay Simulator** (Additional Tools for Xcode) with the iPhone on a cable.
 - **`-MirrorNoDrivingLock YES`** (Debug builds only, this launch only): disables the lock for desk testing; the car
   screen shows a permanent orange "Fahrsperre AUS – nur Test" badge. Launched normally, the lock is back.
@@ -104,6 +115,7 @@ ReplayKit itself doesn't run in the simulator – real mirroring only on a devic
 |---|---|
 | Simulator, test pattern | 30 fps, 4–7 ms encoder → app. The simulator has no low-latency encoder (`-12908`) and ignores `MaxFrameDelayCount` (`-12900`); its encoder held frames back and deadlocked a "max 2 in flight" back-pressure rule. Fixed: without low-latency, force output after every frame, plus a 0.5 s escape hatch. |
 | iPhone 16 Pro, iOS 27.0.1, test pattern | Hardware low-latency encoder, 30 fps, 9 ms encoder → app. |
+| Simulator, 16:9 test pattern with black bars | Bars detected and cut ~2 s after start: 136 px per side (bars are 140 px; the 4 px rest is the safety margin), encoder switches 720×1560 → 720×1288, no frames dropped. |
 | iPhone + CarPlay Simulator, real broadcast | Car window 425×255 pt @2x (800×480 native), 49 pt safe-area inset → 752×510 px video area; encoder follows (346×752). Extension: 4 MB at start, 9–10 MB while encoding (limit 50 MB). 23 ms from screen to app incl. ReplayKit. |
 
 ReplayKit only delivers frames when the screen changes – a static screen means few frames, not an error.
