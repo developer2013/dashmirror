@@ -146,6 +146,17 @@ xcrun devicectl device copy from --device <id> --domain-type appDataContainer \
 - DRM-protected content (streaming apps) is black in ReplayKit captures.
 - Apple can change or remove the window scene role in any iOS release.
 
+## Open tests
+
+- **Pseudo-standby (idea, not tested yet).** iOS ends the broadcast when the iPhone locks, so real standby is out.
+  Idea: keep the iPhone unlocked with the game in front, but make its screen practically dark – Accessibility →
+  Display & Text Size → *Reduce White Point* 100 % plus minimum brightness, toggled with the Accessibility Shortcut
+  (triple-click the side button), Auto-Lock set to *Never*. iOS applies these filters when displaying, and
+  screenshots don't contain them, so ReplayKit probably captures the normal, bright image. To verify: does the car
+  picture stay bright while the iPhone looks off?
+- A real car (BMW, wireless CarPlay), longer sessions with a warm iPhone, switching Maps ↔ DashMirror.
+- iOS 27.2 and later.
+
 ## Project layout
 
 | Part | Files |
