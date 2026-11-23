@@ -172,15 +172,20 @@ xcrun devicectl device copy from --device <id> --domain-type appDataContainer \
 | Driving lock | `DashMirror/Driving/*` |
 | Phone UI | `DashMirror/Phone/*` |
 | Signing config | `Config/Signing.xcconfig`, `Config/Local.xcconfig.example` |
-| App icon | `scripts/make-icon.swift` (`swift scripts/make-icon.swift`) |
+| App icon | `Design/AppIcon/mobile-casting.svg` (Nucleo, not MIT) → `scripts/make-icon.sh` (needs `brew install librsvg`) |
 
 Code comments are in German.
 
 ## Credits
 
+- App icon: *mobile-casting* by [Nucleo](https://nucleoapp.com/).
 - [rPlayAI/cafari-lite](https://github.com/rPlayAI/cafari-lite) (MIT) for showing that a plain `UIWindowScene` under
   `UIWindowSceneSessionRoleCarPlay` works with the CarPlay video + audio entitlements. No code was copied.
 
 ## License
 
-MIT – see [LICENSE](LICENSE).
+Code: MIT – see [LICENSE](LICENSE).
+
+The app icon is the *mobile-casting* icon from [Nucleo](https://nucleoapp.com/) and is **not** covered by the MIT
+license. It's included under Nucleo's open-source allowance with their copyright notice (see
+`Design/AppIcon/mobile-casting.svg`). Redistribution of the icon on its own is prohibited; forks should replace it.

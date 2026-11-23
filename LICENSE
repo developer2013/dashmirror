@@ -19,3 +19,9 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+---
+
+The app icon (Design/AppIcon/mobile-casting.svg and the AppIcon*.png files rendered from it) is a Nucleo icon
+(https://nucleoapp.com/), Copyright © Nucleo. It is not covered by the license above; redistribution of the icon
+is prohibited. See the notice in Design/AppIcon/mobile-casting.svg.
