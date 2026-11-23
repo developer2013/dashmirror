@@ -17,31 +17,55 @@ import Observation
 /// Was die Fahrsperre jede Sekunde weiss. Alles optional bzw. konservativ vorbelegt: fehlende Daten
 /// sollen nie wie "steht" aussehen.
 nonisolated struct DrivingSignals: Equatable, CustomStringConvertible {
+    /// Ab hier gilt das Auto als fahrend (GPS, km/h). GPS-Rauschen im Stand liegt meist bei 0–3 km/h.
+    static let movingKmh = 7.0
+    /// GPS-Geschwindigkeit gilt nur als verlaesslich, wenn iOS ihre Genauigkeit auf hoechstens so viel schaetzt.
+    static let trustedAccuracyKmh = 5.0
+
     /// GPS-Geschwindigkeit in km/h. nil = unbekannt (kein frischer Fix, Tunnel, Parkhaus, keine Freigabe).
     var speedKmh: Double?
+    /// Geschaetzte Genauigkeit der GPS-Geschwindigkeit (±km/h), nil = unbekannt.
+    var speedAccuracyKmh: Double?
     /// Bewegungs-Coprozessor erkennt "im Auto". Bleibt an der Ampel oft true.
     var automotive = false
     /// Bewegungs-Coprozessor erkennt "steht still".
     var stationary = false
     /// Sicherheit der Bewegungs-Erkennung: 0 niedrig, 1 mittel, 2 hoch.
     var motionConfidence = 0
-    /// Sekunden seit der letzten erkannten Bewegung. "Bewegung" = GPS schneller als 7 km/h ODER
-    /// Coprozessor sagt "Auto, steht nicht" mit mindestens mittlerer Sicherheit. nil = seit Start keine.
+    /// Sekunden seit der letzten erkannten Bewegung, nil = seit Start keine. "Bewegung": siehe
+    /// DrivingLockMonitor.evaluate (GPS zuerst, Coprozessor nur ohne verlaessliches GPS).
     var secondsSinceMoving: TimeInterval?
     /// Standortfreigabe fehlt, ist verweigert oder nur ungefaehr.
     var locationUnavailable = true
 
+    /// GPS-Geschwindigkeit nur, wenn sie frisch und genau genug ist – sonst nil.
+    var trustedSpeedKmh: Double? {
+        guard let speed = speedKmh, let accuracy = speedAccuracyKmh, accuracy <= Self.trustedAccuracyKmh else { return nil }
+        return speed
+    }
+
     var description: String {
         let speed = speedKmh.map { String(format: "%.0f km/h", $0) } ?? "? km/h"
+        let accuracy = speedAccuracyKmh.map { String(format: " ±%.0f", $0) } ?? ""
         let since = secondsSinceMoving.map { String(format: "%.0f s", $0) } ?? "nie"
-        return "\(speed), Auto \(automotive ? "ja" : "nein"), steht \(stationary ? "ja" : "nein") "
-            + "(Sicherheit \(motionConfidence)), Bewegung vor \(since)\(locationUnavailable ? ", OHNE Standort" : "")"
+        return "\(speed)\(accuracy)\(trustedSpeedKmh == nil ? " (GPS unsicher)" : ""), Auto \(automotive ? "ja" : "nein"), "
+            + "steht \(stationary ? "ja" : "nein") (Sicherheit \(motionConfidence)), Bewegung vor \(since)"
+            + (locationUnavailable ? ", OHNE Standort" : "")
     }
+}
+
+/// Warum das Bild gerade aus ist – fuer einen passenden Hinweis im Auto.
+enum DrivingLockReason: Equatable {
+    case noLocation     // Standortfreigabe fehlt oder nur ungefaehr
+    case noGPS          // kein frischer, genauer GPS-Wert (Garage, Tunnel, Start)
+    case driving        // faehrt oder steht noch nicht lange genug
 }
 
 @Observable
 final class DrivingLockMonitor: NSObject, CLLocationManagerDelegate {
     private(set) var isLocked = true
+    /// Nur gesetzt, solange gesperrt ist. Aendert sich seltener als `signals` – das Autodisplay beobachtet das hier.
+    private(set) var lockReason: DrivingLockReason? = .noGPS
     private(set) var signals = DrivingSignals()
     private(set) var authorization: CLAuthorizationStatus = .notDetermined
     private(set) var isRunning = false
@@ -131,14 +155,24 @@ final class DrivingLockMonitor: NSObject, CLLocationManagerDelegate {
         if let location = lastLocation, now.timeIntervalSince(location.timestamp) < 5,
            location.speed >= 0, location.speedAccuracy >= 0 {
             signals.speedKmh = location.speed * 3.6
+            signals.speedAccuracyKmh = location.speedAccuracy * 3.6
         }
         if let activity = lastActivity {
             signals.automotive = activity.automotive
             signals.stationary = activity.stationary
             signals.motionConfidence = activity.confidence.rawValue
         }
-        let moving = (signals.speedKmh ?? 0) > 7
-            || (signals.automotive && !signals.stationary && signals.motionConfidence >= 1)
+        // GPS zuerst (Entscheidung des Nutzers am 23.11.2026): Im BMW meldete der Coprozessor bei laufendem
+        // Motor im Stand "im Auto, faehrt", waehrend GPS 0 km/h zeigte – "Stillstand seit" blieb bei 0 s.
+        // Mit verlaesslichem GPS entscheidet deshalb nur die Geschwindigkeit; ohne (Tunnel, Garage) zaehlt auch
+        // der Coprozessor, damit fehlendes GPS nie wie Stillstand aussieht.
+        let coprocessorDriving = signals.automotive && !signals.stationary && signals.motionConfidence >= 1
+        let moving: Bool
+        if let trusted = signals.trustedSpeedKmh {
+            moving = trusted > DrivingSignals.movingKmh
+        } else {
+            moving = (signals.speedKmh ?? 0) > DrivingSignals.movingKmh || coprocessorDriving
+        }
         if moving { lastMoving = now }
         signals.secondsSinceMoving = lastMoving.map { now.timeIntervalSince($0) }
 
@@ -148,6 +182,11 @@ final class DrivingLockMonitor: NSObject, CLLocationManagerDelegate {
             isLocked = locked
             MirrorLog.write("Fahrsperre: \(locked ? "GESPERRT" : "frei") – \(signals)")
         }
+        let reason: DrivingLockReason? = !locked ? nil
+            : signals.locationUnavailable ? .noLocation
+            : signals.trustedSpeedKmh == nil ? .noGPS
+            : .driving
+        if reason != lockReason { lockReason = reason }
     }
 
     // MARK: CLLocationManagerDelegate (kommt auf dem Hauptthread: dort wurde der Manager angelegt)

@@ -62,10 +62,22 @@ struct ContentView: View {
                         ForEach(MirrorFit.allCases) { Text(verbatim: $0.title).tag($0) }
                     }
                     Text(verbatim: hub.fit.detail).font(.caption).foregroundStyle(.secondary)
+                    if hub.fit == .zoom {
+                        VStack(alignment: .leading, spacing: 4) {
+                            LabeledContent("Zoom amount",
+                                           value: String(format: String(localized: "at most %d %% cut off", bundle: .ui),
+                                                         locale: .ui, Int((hub.zoomCrop * 100).rounded())))
+                            Slider(value: $hub.zoomCrop, in: MirrorFit.zoomCropRange, step: 0.01) { editing in
+                                guard !editing else { return }
+                                MirrorLog.write(String(format: "Zoom-Staerke: hoechstens %.0f %% abschneiden",
+                                                       hub.zoomCrop * 100))
+                            }
+                        }
+                    }
                     Toggle("Blurred background instead of black bars", isOn: $hub.ambientBackground)
                     Toggle("Cut off black borders", isOn: $hub.autoCrop)
                     VStack(alignment: .leading, spacing: 4) {
-                        LabeledContent("Zoom", value: String(format: "%.1f×", locale: .ui, hub.zoom))
+                        LabeledContent("Extra zoom", value: String(format: "%.1f×", locale: .ui, hub.zoom))
                         Slider(value: $hub.zoom, in: 1...3, step: 0.05)
                     }
                     if hub.zoom > 1.001 || hub.panFraction != .zero {
@@ -92,6 +104,14 @@ struct ContentView: View {
                     Text("Night mode")
                 } footer: {
                     Text("Dims the picture in the car at night so bright games don’t dazzle. “Automatic” follows the car’s day/night switch (headlights or light sensor). If the car always reports night, choose “Always” or “Off”.")
+                }
+
+                Section {
+                    Toggle("Dim the iPhone while mirroring", isOn: $hub.dimPhone)
+                } header: {
+                    Text("iPhone display")
+                } footer: {
+                    Text("While the picture runs in the car and another app is in front (a video, a game), DashMirror turns the iPhone brightness down to 2 %. The picture in the car stays bright. Opening DashMirror or ending the mirroring brings the brightness back.")
                 }
 
                 ReplaySection(replay: hub.replay, sourceConnected: hub.sourceConnected)
@@ -301,8 +321,7 @@ private struct DrivingSection: View {
                     Text("unlocked").foregroundStyle(.green)
                 }
             }
-            LabeledContent("Speed",
-                           value: monitor.signals.speedKmh.map { String(format: "%.0f km/h", locale: .ui, $0) } ?? String(localized: "unknown", bundle: .ui))
+            LabeledContent("Speed", value: speedText)
             LabeledContent("Motion", value: motionText)
             LabeledContent("Stationary for",
                            value: monitor.signals.secondsSinceMoving.map { String(format: "%.0f s", locale: .ui, $0) } ?? "–")
@@ -317,8 +336,18 @@ private struct DrivingSection: View {
         } header: {
             Text("Driving lock")
         } footer: {
-            Text("When the car moves, the picture in the car disappears immediately. Without location access it stays off.")
+            Text("The picture appears when GPS shows the car standing for 5 s and disappears at once above 7 km/h. Without precise GPS it stays off.")
         }
+    }
+
+    /// GPS-Geschwindigkeit mit Genauigkeit; "ungenau", wenn sie fuer die Fahrsperre nicht zaehlt.
+    private var speedText: String {
+        let s = monitor.signals
+        guard let speed = s.speedKmh else { return String(localized: "unknown", bundle: .ui) }
+        var text = String(format: "%.0f km/h", locale: .ui, speed)
+        if let accuracy = s.speedAccuracyKmh { text += String(format: " ± %.0f", locale: .ui, accuracy) }
+        if s.trustedSpeedKmh == nil { text += " " + String(localized: "(imprecise)", bundle: .ui) }
+        return text
     }
 
     private var motionText: String {

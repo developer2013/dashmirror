@@ -42,6 +42,8 @@ xcodebuild -project DashMirror.xcodeproj -scheme DashMirror \
 
 1. **The driving lock is fail-closed.** `DrivingLockMonitor` starts locked; missing data must never look like
    "parked". The rule itself lives alone in `Driving/DrivingPolicy.swift` and is the user's decision.
+   GPS first (user's decision): with a fresh GPS speed accurate to ±5 km/h only the speed counts as movement; without
+   one, the motion coprocessor's "driving" counts too (it reports "moving" with an idling engine).
    Only exception: launch argument `-MirrorNoDrivingLock YES`, Debug builds only, this launch only, with a permanent
    orange badge on the car screen. No other bypasses. When locked, the display is detached **and** cleared
    (`flush(removingDisplayedImage: true)`) – no frozen frame.

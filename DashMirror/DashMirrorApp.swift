@@ -17,6 +17,7 @@ struct DashMirrorApp: App {
                         + "(\(info?["CFBundleVersion"] as? String ?? "?")), \(UIDevice.current.model) "
                         + "iOS \(UIDevice.current.systemVersion) ===")
         MirrorHub.shared.start()
+        PhoneDimmer.shared.start()
     }
 
     @State private var language = LanguageStore.shared

@@ -21,6 +21,16 @@
         }
       }
     },
+    "(imprecise)" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "(ungenau)"
+          }
+        }
+      }
+    },
     "30 fps" : {
       "localizations" : {
         "de" : {
@@ -47,6 +57,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Über"
+          }
+        }
+      }
+    },
+    "Allow DashMirror precise location on the iPhone. Without it the picture stays off." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erlaube DashMirror am iPhone den genauen Standort. Ohne ihn bleibt das Bild aus."
           }
         }
       }
@@ -264,6 +284,16 @@
         }
       }
     },
+    "Dim the iPhone while mirroring" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iPhone während der Spiegelung abdunkeln"
+          }
+        }
+      }
+    },
     "Dimming" : {
       "localizations" : {
         "de" : {
@@ -344,12 +374,22 @@
         }
       }
     },
-    "Fill (zoom)" : {
+    "Extra zoom" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Füllen (Zoom)"
+            "value" : "Zusätzlicher Zoom"
+          }
+        }
+      }
+    },
+    "Fill" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Füllen"
           }
         }
       }
@@ -370,16 +410,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Füllt ganz, das Bild wird verzerrt."
-          }
-        }
-      }
-    },
-    "Fills when the shapes are close (under 15 %), otherwise fits. Never distorts." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Füllt randlos, wenn die Formen ähnlich sind (unter 15 %), sonst eingepasst. Verzerrt nie."
           }
         }
       }
@@ -684,6 +714,16 @@
         }
       }
     },
+    "Precise location needed" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Genauer Standort nötig"
+          }
+        }
+      }
+    },
     "Quality" : {
       "localizations" : {
         "de" : {
@@ -844,36 +884,6 @@
         }
       }
     },
-    "Slight stretch" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Leicht gestreckt"
-          }
-        }
-      }
-    },
-    "Slight zoom" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Leicht vergrößert"
-          }
-        }
-      }
-    },
-    "Smart fill" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Smart füllen"
-          }
-        }
-      }
-    },
     "Source" : {
       "localizations" : {
         "de" : {
@@ -930,16 +940,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Strecken"
-          }
-        }
-      }
-    },
-    "Stretches by at most 12 %, the rest stays black bars." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Streckt höchstens 12 %, der Rest bleibt schwarzer Rand."
           }
         }
       }
@@ -1014,6 +1014,26 @@
         }
       }
     },
+    "The picture appears once GPS confirms that the car is standing. Garages and tunnels often have no GPS." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Bild erscheint, sobald GPS bestätigt, dass das Auto steht. In Garagen und Tunneln gibt es oft kein GPS."
+          }
+        }
+      }
+    },
+    "The picture appears when GPS shows the car standing for 5 s and disappears at once above 7 km/h. Without precise GPS it stays off." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Bild erscheint, wenn GPS das Auto 5 s lang stehen sieht, und verschwindet über 7 km/h sofort. Ohne genaues GPS bleibt es aus."
+          }
+        }
+      }
+    },
     "The picture comes back as soon as the car stands still." : {
       "localizations" : {
         "de" : {
@@ -1034,22 +1054,22 @@
         }
       }
     },
-    "Up to 10 % stretch and 10 % zoom combined – usually fills wide displays with barely visible changes." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bis zu 10 % strecken und 10 % zoomen kombiniert – füllt breite Displays meist mit kaum sichtbaren Änderungen."
-          }
-        }
-      }
-    },
     "Version" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Version"
+          }
+        }
+      }
+    },
+    "Waiting for GPS" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Warte auf GPS"
           }
         }
       }
@@ -1074,12 +1094,12 @@
         }
       }
     },
-    "When the car moves, the picture in the car disappears immediately. Without location access it stays off." : {
+    "While the picture runs in the car and another app is in front (a video, a game), DashMirror turns the iPhone brightness down to 2 %. The picture in the car stays bright. Opening DashMirror or ending the mirroring brings the brightness back." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Fährt das Auto, wird das Bild im Auto sofort ausgeblendet. Ohne Standort bleibt es aus."
+            "value" : "Läuft das Bild im Auto und ist eine andere App vorn (ein Video, ein Spiel), dreht DashMirror die Helligkeit des iPhones auf 2 %. Das Bild im Auto bleibt hell. Öffnest du DashMirror oder endet die Spiegelung, kommt die Helligkeit zurück."
           }
         }
       }
@@ -1104,12 +1124,22 @@
         }
       }
     },
-    "Zooms in until at most 12 % is cut off." : {
+    "Zoom amount" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Vergrößert, bis höchstens 12 % abgeschnitten sind."
+            "value" : "Zoomstärke"
+          }
+        }
+      }
+    },
+    "Zooms in, but cuts off at most the amount set below. The rest stays as a border." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vergrößert, schneidet aber höchstens so viel ab wie unten eingestellt. Der Rest bleibt Rand."
           }
         }
       }
@@ -1120,6 +1150,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "immer"
+          }
+        }
+      }
+    },
+    "at most %d %% cut off" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "höchstens %d %% abgeschnitten"
           }
         }
       }
@@ -1180,6 +1220,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "iPhone kühler – Bildqualität wieder normal"
+          }
+        }
+      }
+    },
+    "iPhone display" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iPhone-Display"
           }
         }
       }

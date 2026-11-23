@@ -127,10 +127,12 @@ final class CarMirrorViewController: UIViewController {
 
         let safe = view.safeAreaLayoutGuide
         NSLayoutConstraint.activate([
-            videoView.topAnchor.constraint(equalTo: safe.topAnchor),
-            videoView.bottomAnchor.constraint(equalTo: safe.bottomAnchor),
-            videoView.leadingAnchor.constraint(equalTo: safe.leadingAnchor),
-            videoView.trailingAnchor.constraint(equalTo: safe.trailingAnchor),
+            // Ganze Flaeche: der unscharfe Hintergrund laeuft unter der Seitenleiste weiter wie bei nativen
+            // CarPlay-Apps. Das scharfe Bild haelt sich selbst an den sicheren Bereich (pictureInsets).
+            videoView.topAnchor.constraint(equalTo: view.topAnchor),
+            videoView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            videoView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            videoView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
 
             nightShade.topAnchor.constraint(equalTo: view.topAnchor),
             nightShade.bottomAnchor.constraint(equalTo: view.bottomAnchor),
@@ -193,13 +195,14 @@ final class CarMirrorViewController: UIViewController {
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        // Pixelgroesse der Spielflaeche an die Erweiterung melden: Sie kodiert dann genau so gross.
+        let insets = view.safeAreaInsets
+        videoView.pictureInsets = insets
+        // Pixelgroesse der Bildflaeche (ohne Seitenleiste) an die Erweiterung melden: Sie kodiert dann genau so gross.
+        let area = videoView.pictureArea
         let scale = view.window?.windowScene?.screen.scale ?? traitCollection.displayScale
-        let pixels = CGSize(width: (videoView.bounds.width * scale).rounded(),
-                            height: (videoView.bounds.height * scale).rounded())
+        let pixels = CGSize(width: (area.width * scale).rounded(), height: (area.height * scale).rounded())
         guard pixels != lastPixelSize, pixels.width > 0 else { return }
         lastPixelSize = pixels
-        let insets = view.safeAreaInsets
         MirrorLog.write("Autodisplay: Fenster \(Int(view.bounds.width))x\(Int(view.bounds.height)) pt, sicherer Rand "
                         + "oben \(Int(insets.top)) links \(Int(insets.left)) unten \(Int(insets.bottom)) "
                         + "rechts \(Int(insets.right)), Bildflaeche \(Int(pixels.width))x\(Int(pixels.height)) px")
@@ -234,14 +237,25 @@ final class CarMirrorViewController: UIViewController {
         videoView.isHidden = !visible || !streaming
         videoView.orientation = hub.orientation
         videoView.fit = hub.fit
+        videoView.zoomCrop = CGFloat(hub.zoomCrop)
         videoView.videoSize = hub.frameSize
         videoView.zoom = hub.zoom
         videoView.panFraction = hub.panFraction
         videoView.ambient = hub.ambientBackground
 
         if locked {
-            showMessage(symbol: "car.fill", title: String(localized: "Hidden while driving", bundle: .ui),
-                        text: String(localized: "The picture comes back as soon as the car stands still.", bundle: .ui))
+            // Den Grund nennen: In der Garage stand sonst "waehrend der Fahrt", obwohl nur GPS fehlte (23.11.2026).
+            switch hub.driving.lockReason {
+            case .noLocation:
+                showMessage(symbol: "location.slash.fill", title: String(localized: "Precise location needed", bundle: .ui),
+                            text: String(localized: "Allow DashMirror precise location on the iPhone. Without it the picture stays off.", bundle: .ui))
+            case .noGPS:
+                showMessage(symbol: "location.magnifyingglass", title: String(localized: "Waiting for GPS", bundle: .ui),
+                            text: String(localized: "The picture appears once GPS confirms that the car is standing. Garages and tunnels often have no GPS.", bundle: .ui))
+            case .driving, nil:
+                showMessage(symbol: "car.fill", title: String(localized: "Hidden while driving", bundle: .ui),
+                            text: String(localized: "The picture comes back as soon as the car stands still.", bundle: .ui))
+            }
         } else if !streaming {
             showMessage(symbol: "rectangle.on.rectangle",
                         title: String(localized: "Waiting for the broadcast", bundle: .ui),

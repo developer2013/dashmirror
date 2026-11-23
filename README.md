@@ -14,17 +14,17 @@ driving lock hides the picture while the car is moving.
 |---|---|
 | Works | iPhone 16 Pro, iOS 27.0.1, in Apple's CarPlay Simulator and in a real BMW over a cable (23 Nov 2026): mirroring, rotation, picture formats, touches on the car screen. |
 | Not tested yet | Wireless CarPlay. Instant replay, blurred background, night mode and heat protection in a real car; so far they have only run in the simulator. iOS 27.2 and later: Apple cracked down on CarPlay video workarounds in 27.2 (App Store removals), and whether this approach is affected is unknown. |
-| Driving lock | ⚠️ The rule in `DashMirror/Driving/DrivingPolicy.swift` is still a placeholder that **always locks**. Write your rule before use. |
+| Driving lock | Locks at once above 7 km/h (GPS) and unlocks after 5 s of standing. Without precise GPS it stays locked. The rule lives in `DashMirror/Driving/DrivingPolicy.swift`; check it before use (see [Driving lock](#driving-lock)). |
 | UI language | English and German. Follows the iPhone language, or pick one under **Language** in the app. The switch is immediate, on the car screen too. |
 
 ## What it does
 
 - Mirrors whatever is in front on the iPhone into a CarPlay window, at the car display's resolution and 30 or 60 fps.
-- [Seven picture formats](#picture-formats) and pinch zoom.
+- [Four picture formats](#picture-formats) with an adjustable zoom, plus pinch zoom.
 - [Cuts off black borders](#black-borders-and-blurred-background) that games leave themselves, and fills any remaining
   bars with a blurred copy of the picture.
 - [Instant replay](#instant-replay): a long press on the car screen saves the last 30 seconds to Photos.
-- [Night mode](#night-mode) and [heat protection](#heat-protection).
+- [Night mode](#night-mode), [a dark iPhone while mirroring](#dim-the-iphone) and [heat protection](#heat-protection).
 - Switches between English and German without a restart.
 
 ## No hacks, no extra hardware
@@ -114,7 +114,7 @@ On the car screen:
 | Drag | Move the zoomed picture. |
 
 Whether a head unit delivers multi-touch depends on the car (Apple's CarPlay Simulator doesn't), so the iPhone has the
-same zoom as a slider, plus a reset button. Frame rate (30/60) and quality (6/12/20 Mbit/s) are set on the iPhone and
+same zoom as a slider (**Extra zoom**, on top of the picture format), plus a reset button. Frame rate (30/60) and quality (6/12/20 Mbit/s) are set on the iPhone and
 apply immediately. The resolution follows the car display.
 
 Hold the iPhone in landscape. Its picture is 2.17:1 and fills a wide car display almost completely. Portrait apps stay
@@ -128,16 +128,15 @@ The format button in the control bar cycles through them. The iPhone shows each 
 
 | Format | What it does |
 |-|-|
-| Automatic (default) | Fills when the shapes differ by less than 15 %, otherwise fits. Never distorts. |
 | Fit | Whole picture, black bars. |
-| Slight zoom | Zooms in until at most 12 % is cut off. |
-| Smart fill | Up to 10 % stretch plus up to 10 % zoom. |
-| Slight stretch | Stretches by at most 12 %, the rest stays black bars. |
-| Fill (zoom) | Fills completely, edges are cut off. |
+| Zoom (default) | Zooms in, but cuts off at most the **Zoom amount** set on the iPhone (0–15 %, default 6 %). The rest stays as a border. |
+| Fill | Fills completely, edges are cut off. |
 | Stretch | Fills completely, distorted. |
 
-In the BMW (2.45:1 display, iPhone landscape 2.17:1) the gap is 13 %, so Automatic, Slight zoom and Smart fill all
-come out borderless or nearly so. Which one looks best is still to be tested in the car.
+In the BMW (2.45:1 display, iPhone landscape 2.17:1), filling cuts off 11.4 % of the height. The first version had seven
+formats, and in landscape three of them (Automatic, Slight zoom, Fill) came out identical at those 11.4 %, which was
+too close. The stretch variants were hard to tell apart. So the zoom is now adjustable. In landscape, 0 % equals Fit,
+6 % cuts 6 % and leaves a 5.8 % border, and 11.4 % or more is borderless. Portrait apps barely change with it.
 
 ### Black borders and blurred background
 
@@ -146,9 +145,13 @@ crops before encoding, so the actual content gets bigger. Per axis it only cuts 
 content reaches into a border, the crop shrinks at once; it only grows after 2 s of stable measurements, so dark scenes
 don't zoom. Toggle: **Cut off black borders**.
 
-Where bars remain (portrait apps, the Fit format), the same picture fills the space behind them, enlarged and blurred,
-like portrait videos on TV. This is a second display layer with its own hardware decoder, attached only while bars are
-visible. Toggle: **Blurred background instead of black bars**.
+Behind the picture, the same picture fills the whole car window, enlarged and blurred, like portrait videos on TV. Like
+native CarPlay apps, this background also runs under the floating CarPlay sidebar. The sharp picture stays in the safe
+area, so the sidebar never covers the game. It gets rounded corners, about 5 % of the display height, which is the
+radius CarPlay uses for its own app area (12 pt in the BMW, measured from a photo). The background is a second display
+layer with its own hardware decoder. Because the corners and the strip under the sidebar always show it, it now runs
+whenever the toggle is on. With the test pattern in the simulator: still 30 fps, 5 ms, nothing dropped. Toggle:
+**Blurred background instead of black bars** (off = black behind the picture).
 
 ### Instant replay
 
@@ -168,6 +171,16 @@ Dims the car picture with a black layer, 15 to 70 %. **Automatic** follows the c
 the window's appearance (`userInterfaceStyle`) by headlights or light sensor, the same signal navigation apps use for
 their maps. Some cars report night all the time, so the iPhone shows what the car reports.
 
+### Dim the iPhone
+
+Optional, off by default (**Dim the iPhone while mirroring**). While the picture runs in the car and another app is in
+front on the iPhone, for example a video, DashMirror turns the iPhone's brightness down to 2 %. Unlike a game app that
+draws its own car picture, DashMirror can't show a black screen on the iPhone, because the iPhone screen *is* the
+mirrored picture. Only the backlight goes down, and ReplayKit captures the picture, not the backlight. The brightness
+is dimmed when you leave DashMirror and restored when you come back, when the mirroring ends or when the car
+disconnects. iOS itself restores it at the next lock. If iOS refuses the restore while DashMirror is in the background,
+the log says so and the next time you open DashMirror restores it. Code: `DashMirror/Phone/PhoneDimmer.swift`.
+
 ### Heat protection
 
 The app checks the iPhone's thermal state every 0.5 s. At *serious* it lowers the resolution to 75 % and the data rate
@@ -182,10 +195,21 @@ its confidence, the seconds since the last movement, and whether location access
 `DrivingPolicy.shouldLock` decides. The monitor starts locked, and missing data never counts as parked. When locked,
 the picture is removed from the car screen (no frozen frame) and the decoder stops.
 
+**GPS first.** With a fresh GPS speed that iOS rates accurate to ±5 km/h, only the speed decides whether the car
+moves. Without one (tunnel, garage, start-up), the motion coprocessor's "driving" also counts as movement. Reason: in
+the BMW with the engine idling, the coprocessor kept reporting "in car, moving" while GPS showed 0 km/h,
+so "stationary for" never left 0 s.
+
+**The rule** (`DrivingPolicy.swift`): locked without precise location access or without an accurate GPS speed; locked
+at once above 7 km/h; after moving, unlocked once the car has stood for 5 s (`unlockAfterSeconds`). The car screen
+names the reason: driving, waiting for GPS, or precise location needed. While locked, the 10 s log line includes the
+measurements.
+
 Location also runs in the background (blue status pill), because in the car the game is in front on the iPhone.
 
 In Germany, § 23 (1a) StVO allows a driver to use the screen only when the car is stopped and the engine is off.
-Start-stop does not count, and the app cannot detect the engine. Keep that in mind when you write the rule.
+Start-stop does not count, and the app cannot detect the engine. The default rule unlocks after 5 s at a red light too,
+with the engine running. Make it stricter (e.g. a longer `unlockAfterSeconds`) if you want it closer to "parked".
 
 ## Testing without a car
 
@@ -217,6 +241,7 @@ With the iPhone on a cable, Apple's CarPlay Simulator (Additional Tools for Xcod
 | Setup | Result |
 |---|---|
 | BMW, real car, iPhone 16 Pro over a cable (23 Nov 2026) | CarPlay window 642×240 pt @3x (1440×540 native), 49 pt sidebar → 1770×723 px video area (2.45:1). 30–57 fps, 12–21 ms from screen to app. |
+| BMW, second drive (23 Nov 2026) | All seven old formats compared in portrait and landscape. Landscape apps with zoom looked best, but Fill-level zoom (11.4 % cut) was too close, which led to the adjustable zoom. 11–16 ms from screen to app, 0–0.1 dropped/s. After dark the car reported night. Whether it switches to day still needs a test in daylight. The `-MirrorNoDrivingLock` launch ended after 55 min (no crash or jetsam report). The next normal launch was locked again, as intended. |
 | iPhone + CarPlay Simulator, real broadcast | Car window 425×255 pt @2x (800×480 native), 49 pt safe-area inset → 752×510 px video area; the encoder follows (346×752). Extension: 4 MB at start, 9–10 MB while encoding (limit 50 MB). 23 ms from screen to app including ReplayKit. |
 | iPhone 16 Pro, iOS 27.0.1, test pattern | Hardware low-latency encoder, 30 fps, 9 ms encoder → app. |
 | Simulator, test pattern | 30 fps, 4–7 ms encoder → app. The simulator has no low-latency encoder (`-12908`) and ignores `MaxFrameDelayCount` (`-12900`). Its encoder held frames back and deadlocked a "max 2 in flight" back-pressure rule. Fixed: without low-latency, force output after every frame, plus a 0.5 s escape hatch. |
@@ -277,7 +302,10 @@ anything else that comes from building, changing or using DashMirror.
   (Accessibility › Display & Text Size) plus minimum brightness, toggled with the Accessibility Shortcut (triple-click
   the side button), and Auto-Lock set to **Never**. iOS applies these filters when displaying, and screenshots don't
   contain them, so ReplayKit probably captures the normal, bright picture. To check: does the car picture stay bright
-  while the iPhone looks off?
+  while the iPhone looks off? [Dim the iPhone](#dim-the-iphone) does the brightness half of this automatically.
+- Dim the iPhone: does the car picture stay bright at 2 % brightness, does iOS accept the restore while DashMirror is in
+  the background (log line `iPhone-Helligkeit …`), and does auto-brightness raise the brightness again during a
+  session?
 - Wireless CarPlay, longer sessions with a warm iPhone, switching between Maps and DashMirror.
 - The new features in a real car: does the blur render on the head unit, does the BMW send a day/night signal (the log
   line is `Autodisplay: Auto meldet …`), does heat protection kick in on a warm day, how big is the control bar on the

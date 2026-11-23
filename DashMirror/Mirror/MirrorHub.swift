@@ -34,7 +34,7 @@ final class MirrorHub {
     private(set) var carPixelSize: CGSize = .zero
 
     // MARK: Einstellungen
-    var fit = MirrorFit(rawValue: UserDefaults.standard.string(forKey: "mirrorFit") ?? "") ?? .auto {
+    var fit = MirrorFit(stored: UserDefaults.standard.string(forKey: "mirrorFit")) {
         didSet {
             guard fit != oldValue else { return }
             UserDefaults.standard.set(fit.rawValue, forKey: "mirrorFit")
@@ -42,6 +42,12 @@ final class MirrorHub {
             MirrorLog.write("Bildformat: \(fit.rawValue) (Bild \(Int(frameSize.width))x\(Int(frameSize.height)), "
                             + "Auto \(Int(carPixelSize.width))x\(Int(carPixelSize.height)) px)")
         }
+    }
+    /// Format Zoom: hoechstens so viel abschneiden (0...0,15). Reine Darstellung im Auto, aendert nichts am Strom.
+    /// Protokolliert wird erst beim Loslassen des Reglers (ContentView), sonst flutet der Regler das Protokoll.
+    var zoomCrop = (UserDefaults.standard.object(forKey: "mirrorZoomCrop") as? Double ?? MirrorFit.defaultZoomCrop)
+        .clamped(to: MirrorFit.zoomCropRange) {
+        didSet { if zoomCrop != oldValue { UserDefaults.standard.set(zoomCrop, forKey: "mirrorZoomCrop") } }
     }
     var frameRate = MirrorSettings.load().frameRate {
         didSet { if frameRate != oldValue { settingsChanged() } }
@@ -69,6 +75,14 @@ final class MirrorHub {
             guard nightMode != oldValue else { return }
             UserDefaults.standard.set(nightMode.rawValue, forKey: "mirrorNight")
             MirrorLog.write("Nachtmodus: \(nightMode.rawValue)")
+        }
+    }
+    /// iPhone abdunkeln, waehrend die Spiegelung ins Auto laeuft und eine andere App vorn ist (PhoneDimmer.swift).
+    var dimPhone = UserDefaults.standard.bool(forKey: "dimPhone") {
+        didSet {
+            guard dimPhone != oldValue else { return }
+            UserDefaults.standard.set(dimPhone, forKey: "dimPhone")
+            MirrorLog.write("iPhone abdunkeln: \(dimPhone ? "an" : "aus")")
         }
     }
     /// Wie stark abgedunkelt wird (Deckkraft der schwarzen Schicht).
@@ -346,7 +360,8 @@ final class MirrorHub {
                                    averageLatency, Double(totals.dropped) / window,
                                    "\(Int(frameSize.width))x\(Int(frameSize.height))",
                                    carConnected ? (carForeground ? "vorn" : "hinten") : "nein",
-                                   driving.isLocked ? "AN" : "aus", thermalState.logName))
+                                   // Bei Sperre die Messwerte dazu – so ist eine Testfahrt ohne Mac auswertbar.
+                                   driving.isLocked ? "AN (\(driving.signals))" : "aus", thermalState.logName))
         }
     }
 
