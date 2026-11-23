@@ -5,7 +5,8 @@ controller. No jailbreak, no IPA injection, no extra hardware ([details](#no-hac
 driving lock hides the picture while the car is moving.
 
 > **Use only while parked.** Not affiliated with, endorsed by, or connected to Apple. CarPlay is a trademark of
-> Apple Inc. This is a hobby project, not an App Store app. See [Limitations](#limitations).
+> Apple Inc. This is a hobby project, not an App Store app. See [Limitations](#limitations) and
+> [Use at your own risk](#use-at-your-own-risk).
 
 ## Status (November 2026)
 
@@ -257,6 +258,18 @@ xcrun devicectl device copy from --device DEVICE_ID --domain-type appDataContain
 - DRM-protected content (streaming apps) is black in ReplayKit captures.
 - Apple can change or remove the window scene role in any iOS release.
 
+## Use at your own risk
+
+DashMirror is a hobby project. The code is free and comes as is, without warranty (see [LICENSE](LICENSE)).
+
+If you build it, what you do with it is your responsibility. That includes requesting CarPlay entitlements from
+Apple, adding them to your own App ID, writing the driving-lock rule and changing the code. Whether that fits Apple's
+developer agreements is between you and Apple. The CarPlay window is meant for a parked car, so don't watch or play
+while driving.
+
+To the extent permitted by law, I'm not liable for damage, lost data, fines, trouble with your developer account or
+anything else that comes from building, changing or using DashMirror.
+
 ## Open tests
 
 - Pseudo-standby, an untested idea. iOS ends the broadcast when the iPhone locks, so real standby is out. Instead, keep
@@ -292,7 +305,11 @@ xcrun devicectl device copy from --device DEVICE_ID --domain-type appDataContain
 
 Code comments are in German.
 
-## Reporting
+## Questions and reports
+
+If something doesn't work or you want to know how a part works, open an
+[issue](https://github.com/developer2013/dashmirror/issues). I'm happy to help. I can't give out IPAs or builds signed
+with my entitlements.
 
 Every car behaves a little differently (display size, multi-touch, day/night signal). If you try DashMirror, a
 [car report](https://github.com/developer2013/dashmirror/issues/new?template=car-report.yml) helps, whether it works
