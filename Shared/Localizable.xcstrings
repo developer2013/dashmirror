@@ -81,6 +81,16 @@
         }
       }
     },
+    "App language" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App-Sprache"
+          }
+        }
+      }
+    },
     "Applies immediately, even during a running broadcast. The resolution follows the car display automatically." : {
       "localizations" : {
         "de" : {
@@ -234,6 +244,16 @@
         }
       }
     },
+    "Follows the iPhone language unless you pick one here." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Folgt der iPhone-Sprache, außer du wählst hier eine aus."
+          }
+        }
+      }
+    },
     "Frame %d · %.1f s" : {
       "localizations" : {
         "de" : {
@@ -290,6 +310,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "So geht’s"
+          }
+        }
+      }
+    },
+    "Language" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sprache"
           }
         }
       }
@@ -590,6 +620,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Zum Spiel wechseln, iPhone quer ablegen und mit dem Controller spielen."
+          }
+        }
+      }
+    },
+    "System" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "System"
+          }
+        }
+      }
+    },
+    "Takes effect after restarting the app: close it in the app switcher and open it again." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wird nach einem Neustart der App übernommen: im App-Umschalter schließen und neu öffnen."
           }
         }
       }

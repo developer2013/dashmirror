@@ -16,6 +16,7 @@ struct ContentView: View {
     @Environment(MirrorHub.self) private var hub
     @Environment(\.scenePhase) private var scenePhase
     @State private var holdsDrivingMonitor = false
+    @State private var language = AppLanguage.selected
 
     var body: some View {
         @Bindable var hub = hub
@@ -104,6 +105,21 @@ struct ContentView: View {
                     Step(4, "Switch to your game, put the iPhone down in landscape and play with the controller.")
                     Step(5, "Set Auto-Lock to “Never” – locking the iPhone ends the broadcast.")
                 }
+
+                Section {
+                    Picker("App language", selection: $language) {
+                        ForEach(AppLanguage.allCases) { Text(verbatim: $0.title).tag($0) }
+                    }
+                } header: {
+                    Text("Language")
+                } footer: {
+                    if language != AppLanguage.atLaunch {
+                        Text("Takes effect after restarting the app: close it in the app switcher and open it again.")
+                    } else {
+                        Text("Follows the iPhone language unless you pick one here.")
+                    }
+                }
+                .onChange(of: language) { _, new in AppLanguage.select(new) }
 
                 Section {
                     NavigationLink("Log") { LogView() }
