@@ -15,8 +15,8 @@ A fail-closed driving lock hides the picture while the car is moving.
 
 | | |
 |---|---|
-| Works | iPhone 16 Pro, iOS 27.0.1, with Apple's CarPlay Simulator: real screen mirroring shows up in the CarPlay window, touches on the car screen arrive. |
-| Not tested yet | A real car. **iOS 27.2 and later** – Apple cracked down on CarPlay video workarounds in 27.2 (App Store removals); whether this approach is affected is unknown. |
+| Works | iPhone 16 Pro, iOS 27.0.1: Apple's CarPlay Simulator and a real BMW over a cable (23 Nov 2026) – mirroring, rotation, picture formats, touches on the car screen. |
+| Not tested yet | Wireless CarPlay. Instant replay, blurred background, night mode and heat protection in a real car (simulator only so far). **iOS 27.2 and later** – Apple cracked down on CarPlay video workarounds in 27.2 (App Store removals); whether this approach is affected is unknown. |
 | Driving lock | ⚠️ The rule in `DashMirror/Driving/DrivingPolicy.swift` is still a placeholder that **always locks**. Write your rule before use. |
 | UI language | English and German. Follows the iPhone language; pick one in the app under *Language* – switches immediately, on the car screen too. |
 
@@ -50,6 +50,11 @@ CarPlay window (UIWindowScene under the role "UIWindowSceneSessionRoleCarPlay")
   the full mirroring pipeline, the test pattern and the phone UI.
 
 ## Setup
+
+```bash
+git clone https://github.com/developer2013/dashmirror.git
+cd dashmirror
+```
 
 1. `cp Config/Local.xcconfig.example Config/Local.xcconfig` (git-ignored) and set your team ID, bundle ID and App Group.
 2. Open `DashMirror.xcodeproj` and run once on your iPhone – automatic signing registers both App IDs
@@ -206,7 +211,7 @@ xcrun devicectl device copy from --device <id> --domain-type appDataContainer \
   (triple-click the side button), Auto-Lock set to *Never*. iOS applies these filters when displaying, and
   screenshots don't contain them, so ReplayKit probably captures the normal, bright image. To verify: does the car
   picture stay bright while the iPhone looks off?
-- A real car (BMW, wireless CarPlay), longer sessions with a warm iPhone, switching Maps ↔ DashMirror.
+- Wireless CarPlay, longer sessions with a warm iPhone, switching Maps ↔ DashMirror.
 - New features in the car: does the blur render on the head unit, does the BMW send a day/night signal (the log says
   `Auto meldet Tag/Nacht`), does heat protection kick in on a warm day, how big is the bar on the 240 pt high screen.
 - iOS 27.2 and later.
@@ -231,6 +236,12 @@ xcrun devicectl device copy from --device <id> --domain-type appDataContainer \
 | App icon | `Design/AppIcon/mobile-casting.svg` (Nucleo, not MIT) → `scripts/make-icon.sh` (needs `brew install librsvg`) |
 
 Code comments are in German.
+
+## Reporting
+
+Every car behaves a little differently (display size, multi-touch, day/night signal). If you try DashMirror, a
+[car report](https://github.com/developer2013/dashmirror/issues/new?template=car-report.yml) helps – working or not.
+The logs contain speed, but no location.
 
 ## Credits
 

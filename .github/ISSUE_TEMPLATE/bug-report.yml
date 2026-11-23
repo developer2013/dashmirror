@@ -1,0 +1,31 @@
+name: Bug report
+description: Something doesn't work the way the README describes.
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you did, what you expected, what you saw instead.
+    validations:
+      required: true
+  - type: input
+    id: iphone
+    attributes:
+      label: iPhone and iOS version
+      placeholder: iPhone 16 Pro, iOS 27.0.1
+    validations:
+      required: true
+  - type: input
+    id: car
+    attributes:
+      label: Car or CarPlay Simulator
+      placeholder: CarPlay Simulator / BMW 3 Series 2023, wired
+  - type: textarea
+    id: log
+    attributes:
+      label: Logs
+      description: |
+        `app.log` and `broadcast.log` from the app's Log screen (share button). `app.log` is also in the Files app
+        › On My iPhone › DashMirror › Logs. The logs contain speed, but no location.
+      render: text

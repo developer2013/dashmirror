@@ -1,0 +1,60 @@
+name: Car report
+description: How DashMirror runs in your car – working or not. Please test while parked.
+title: "[Car] "
+labels: ["car report"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for testing. Every head unit behaves a little differently, so each report helps.
+        The log lines are in German; just copy them as they are.
+  - type: input
+    id: car
+    attributes:
+      label: Car
+      description: Make, model, year, and the infotainment system if you know it.
+      placeholder: BMW 3 Series 2023, iDrive 8
+    validations:
+      required: true
+  - type: dropdown
+    id: connection
+    attributes:
+      label: CarPlay connection
+      options:
+        - Wired
+        - Wireless
+    validations:
+      required: true
+  - type: input
+    id: iphone
+    attributes:
+      label: iPhone and iOS version
+      placeholder: iPhone 16 Pro, iOS 27.0.1
+    validations:
+      required: true
+  - type: checkboxes
+    id: works
+    attributes:
+      label: What works?
+      options:
+        - label: DashMirror shows up on the car screen
+        - label: The mirrored picture appears and stands upright
+        - label: Tapping the car screen shows the control bar
+        - label: Two-finger zoom works on the car screen
+        - label: The blurred background shows behind the picture (try a portrait app or the "Fit" format)
+        - label: "Night mode follows the car (after dark the iPhone shows \"Car reports: night\")"
+        - label: Saving a clip works
+  - type: textarea
+    id: log
+    attributes:
+      label: Log lines
+      description: |
+        In the app under Log, or in the Files app › On My iPhone › DashMirror › Logs. Most useful:
+        `Autodisplay: Fenster …`, `Empfang (10 s): …` and `Autodisplay: Auto meldet …`.
+        The log contains speed, but no location.
+      render: text
+  - type: textarea
+    id: notes
+    attributes:
+      label: Anything else
+      description: Latency feel, picture format you liked best, problems.
