@@ -6,9 +6,10 @@
 //  -> Unix-Socket -> Empfang -> Anzeige. Prueft alles ausser ReplayKit selbst – auch im Simulator
 //  und am Schreibtisch mit dem CarPlay Simulator.
 //
-//  Absichtlich wie ReplayKit bei quer gehaltenem iPhone: Der Puffer ist HOCHKANT, das Querformat-Bild
-//  liegt darin um 90 Grad gedreht, und die Ausrichtung sagt ".right" (EXIF 6 = zum Anzeigen 90 Grad im
-//  Uhrzeigersinn drehen). Steht "↑ oben" auf dem Display aufrecht und lesbar, stimmt die Drehung.
+//  Absichtlich wie ReplayKit bei quer gehaltenem iPhone: Der Puffer ist HOCHKANT, das Querformat-Bild liegt
+//  darin 90 Grad IM Uhrzeigersinn gedreht, und die Ausrichtung sagt ".right" (6). So liefert es ReplayKit
+//  wirklich (gemessen am 23.11.2026 im BMW) – die erste Fassung hatte die Gegenrichtung angenommen, Testbild und
+//  Anzeige waren sich einig, aber beide falsch. Steht "↑ top" aufrecht und lesbar, stimmt die Drehung.
 //
 
 import CoreVideo
@@ -73,9 +74,9 @@ nonisolated final class TestPattern: @unchecked Sendable {
             // UIKit-Koordinaten (y nach unten) auf dem Hochkant-Puffer ...
             context.translateBy(x: 0, y: CGFloat(height))
             context.scaleBy(x: 1, y: -1)
-            // ... und das Querformat 90 Grad GEGEN den Uhrzeigersinn hineinlegen (EXIF 6):
-            // Anzeige-Punkt (x, y) -> Puffer-Punkt (y, L - x), L = Breite des Querformats.
-            context.concatenate(CGAffineTransform(a: 0, b: -1, c: 1, d: 0, tx: 0, ty: landscape.width))
+            // ... und das Querformat 90 Grad IM Uhrzeigersinn hineinlegen (wie ReplayKit bei Ausrichtung 6):
+            // Anzeige-Punkt (x, y) -> Puffer-Punkt (S - y, x), S = Hoehe des Querformats = Breite des Puffers.
+            context.concatenate(CGAffineTransform(a: 0, b: 1, c: -1, d: 0, tx: landscape.height, ty: 0))
             draw(in: context, size: landscape)
         }
         CVPixelBufferUnlockBaseAddress(buffer, [])

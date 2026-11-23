@@ -98,13 +98,15 @@ final class MirrorVideoView: UIView {
         }
     }
 
-    /// EXIF-Bedeutung: .right (6) = zum Anzeigen 90 Grad im Uhrzeigersinn drehen, .left (8) = dagegen.
+    /// ReplayKit meint mit .right (6) "zum Anzeigen 90 Grad GEGEN den Uhrzeigersinn drehen", mit .left (8) im
+    /// Uhrzeigersinn – also umgekehrt zur EXIF-Lesart. Gemessen am 23.11.2026 im BMW: Mit der EXIF-Lesart stand
+    /// YouTube bei Ausrichtung 6 auf dem Kopf (90 Grad falsch herum = 180 Grad). WebRTC/Jitsi drehen ebenso.
     /// In UIKit dreht ein positiver Winkel im Uhrzeigersinn (y zeigt nach unten).
     /// Gespiegelte Varianten liefert ReplayKit nicht – sie werden wie die ungespiegelten gedreht.
     static func rotation(for orientation: CGImagePropertyOrientation) -> (angle: CGFloat, swapsSides: Bool) {
         switch orientation {
-        case .right, .rightMirrored: (.pi / 2, true)
-        case .left, .leftMirrored:   (-.pi / 2, true)
+        case .right, .rightMirrored: (-.pi / 2, true)
+        case .left, .leftMirrored:   (.pi / 2, true)
         case .down, .downMirrored:   (.pi, false)
         default:                     (0, false)
         }

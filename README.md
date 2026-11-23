@@ -66,7 +66,7 @@ CarPlay window (UIWindowScene under the role "UIWindowSceneSessionRoleCarPlay")
 4. Switch to your game, put the iPhone down in landscape, play with the controller.
 5. Set Auto-Lock to *Never* – the picture freezes when the iPhone locks.
 
-On the car screen: **tap** = picture format (fit → fill → stretch), **pinch** = zoom, **drag** = move the zoomed
+On the car screen: **tap** = picture format (fit ↔ fill; stretch only on the iPhone), **pinch** = zoom, **drag** = move the zoomed
 image, **long press** = show stats. Whether a head unit delivers multi-touch depends on the car (Apple's CarPlay
 Simulator doesn't), so the iPhone has the same zoom as a slider, plus reset.
 On the iPhone: frame rate (30/60) and quality (6/12/20 Mbit/s) apply immediately; resolution follows the car display.
@@ -117,6 +117,11 @@ ReplayKit itself doesn't run in the simulator – real mirroring only on a devic
 | iPhone 16 Pro, iOS 27.0.1, test pattern | Hardware low-latency encoder, 30 fps, 9 ms encoder → app. |
 | Simulator, 16:9 test pattern with black bars | Bars detected and cut ~2 s after start: 136 px per side (bars are 140 px; the 4 px rest is the safety margin), encoder switches 720×1560 → 720×1288, no frames dropped. |
 | iPhone + CarPlay Simulator, real broadcast | Car window 425×255 pt @2x (800×480 native), 49 pt safe-area inset → 752×510 px video area; encoder follows (346×752). Extension: 4 MB at start, 9–10 MB while encoding (limit 50 MB). 23 ms from screen to app incl. ReplayKit. |
+
+**BMW (23 Nov 2026, real car, wired iPhone 16 Pro):** CarPlay window 642×240 pt @3x (1440×540 native), 49 pt sidebar →
+1770×723 px video area (2.45:1); 30–57 fps, 12–21 ms screen → app. ReplayKit's orientation `.right` (6) needs a
+90° *counter-clockwise* rotation – the opposite of the EXIF reading; the first version showed YouTube upside down.
+Netflix stays black (DRM content isn't captured by ReplayKit – by design, not fixable).
 
 ReplayKit only delivers frames when the screen changes – a static screen means few frames, not an error.
 **Locking the iPhone ends the broadcast** (measured: iOS finished it 7 s after CarPlay connected, when the phone was

@@ -196,7 +196,7 @@ final class CarMirrorViewController: UIViewController {
     // MARK: Beruehrung
 
     @objc private func tapped() {
-        hub.fit = hub.fit.next
+        hub.fit = hub.fit.nextInCar
         showToast(String(format: String(localized: "Picture: %@", bundle: .ui), locale: .ui, hub.fit.title))
         MirrorLog.write("Autodisplay: Bildformat \(hub.fit.rawValue)")
     }

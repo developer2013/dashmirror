@@ -37,6 +37,11 @@ enum MirrorFit: String, CaseIterable {
         let all = Self.allCases
         return all[(all.firstIndex(of: self)! + 1) % all.count]
     }
+
+    /// Tippen im Auto wechselt nur zwischen Einpassen und Fuellen. "Strecken" verzerrt bei jedem
+    /// Seitenverhaeltnis-Unterschied (BMW: 2,45:1 gegen iPhone 2,17:1) und war im Auto versehentlich aktiv
+    /// (23.11.2026) – es bleibt nur in der Auswahl am iPhone.
+    var nextInCar: MirrorFit { self == .fit ? .fill : .fit }
 }
 
 @Observable
