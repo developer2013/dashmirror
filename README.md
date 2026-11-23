@@ -119,7 +119,10 @@ ReplayKit itself doesn't run in the simulator – real mirroring only on a devic
 | iPhone + CarPlay Simulator, real broadcast | Car window 425×255 pt @2x (800×480 native), 49 pt safe-area inset → 752×510 px video area; encoder follows (346×752). Extension: 4 MB at start, 9–10 MB while encoding (limit 50 MB). 23 ms from screen to app incl. ReplayKit. |
 
 ReplayKit only delivers frames when the screen changes – a static screen means few frames, not an error.
-When the iPhone locks, the app loses its encoder session (`-12903`) and rebuilds it.
+**Locking the iPhone ends the broadcast** (measured: iOS finished it 7 s after CarPlay connected, when the phone was
+locked); after unlocking it has to be started again. The game is suspended while locked anyway. Set Auto-Lock to
+*Never* while playing. Touch on the car screen can't drive other apps, so "phone locked, play by car touch" is
+not possible with mirroring.
 
 ## Logs
 

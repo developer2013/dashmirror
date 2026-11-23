@@ -34,6 +34,7 @@ final class SampleHandler: RPBroadcastSampleHandler {
 
     override func broadcastPaused() {
         MirrorLog.write("Uebertragung pausiert")
+        MirrorLog.flush()
     }
 
     override func broadcastResumed() {
@@ -41,10 +42,13 @@ final class SampleHandler: RPBroadcastSampleHandler {
         streamer?.encoder.requestKeyframe()
     }
 
+    /// Kommt auch, wenn iOS die Uebertragung beim Sperren des iPhones beendet (gemessen am 23.11.2026) –
+    /// nach dem Entsperren muss sie neu gestartet werden.
     override func broadcastFinished() {
         MirrorLog.write("=== Uebertragung beendet ===")
         streamer?.stop()
         streamer = nil
+        MirrorLog.flush()
     }
 
     override func processSampleBuffer(_ sampleBuffer: CMSampleBuffer, with sampleBufferType: RPSampleBufferType) {

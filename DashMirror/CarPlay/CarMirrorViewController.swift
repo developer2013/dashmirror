@@ -158,7 +158,8 @@ final class CarMirrorViewController: UIViewController {
             showMessage(symbol: "rectangle.on.rectangle",
                         title: "Warte auf die Übertragung",
                         text: "Am iPhone „DashMirror“ öffnen › „Spiegelung starten“\n"
-                            + "oder Kontrollzentrum › Bildschirmaufnahme gedrückt halten › „DashMirror“.")
+                            + "oder Kontrollzentrum › Bildschirmaufnahme gedrückt halten › „DashMirror“.\n"
+                            + "Wird das iPhone gesperrt, endet die Übertragung – danach neu starten.")
         } else {
             message.isHidden = true
         }

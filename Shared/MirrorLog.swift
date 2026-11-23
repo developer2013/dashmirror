@@ -39,6 +39,12 @@ nonisolated enum MirrorLog {
         queue.async { append(line) }
     }
 
+    /// Wartet, bis alle Zeilen in der Datei stehen. Noetig am Ende einer Uebertragung: iOS friert die Erweiterung
+    /// direkt danach ein, die letzte Zeile ging sonst verloren (gemessen am 23.11.2026 beim Sperren des iPhones).
+    static func flush() {
+        queue.sync {}
+    }
+
     /// Zweites Ziel im EIGENEN Container des Prozesses: Nur den kann `devicectl device copy from` per Kabel lesen.
     /// Der gemeinsame Container ist dafuer gesperrt (gemessen am 23.11.2026: "outside the directories the
     /// container access policy allows").
