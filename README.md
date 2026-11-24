@@ -9,6 +9,8 @@ the iPhone reacts, as if you touched the iPhone. Off by default, with a setup of
 
 ![A finger on the BMW's screen plays a game that runs on the iPhone](docs/touch-in-the-bmw.gif)
 
+Full test video in the BMW, 3:37 with chapters: [youtu.be/DnrtX1dW0b4](https://youtu.be/DnrtX1dW0b4)
+
 > **Use only while parked.** Not affiliated with, endorsed by, or connected to Apple. CarPlay is a trademark of
 > Apple Inc. This is a hobby project, not an App Store app. See [Limitations](#limitations) and
 > [Use at your own risk](#use-at-your-own-risk).
