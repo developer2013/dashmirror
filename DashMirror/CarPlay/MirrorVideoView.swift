@@ -178,6 +178,29 @@ final class MirrorVideoView: UIView {
                        y: max(0, (content.height * scale - area.height) / 2))
     }
 
+    /// Touch im Auto (Experiment): Wo auf dem iPhone-Bildschirm liegt dieser Punkt des Autodisplays?
+    ///
+    /// - Parameter carPoint: Punkt in den Koordinaten DIESER View (Autodisplay, Punkte, oben links = 0,0).
+    /// - Returns: Lage auf dem iPhone im Hochformat, je Achse 0...1 (0,0 = oben links, wie ReplayKit das Bild
+    ///   liefert und wie der iPhone-Touchscreen zaehlt) – oder nil, wenn der Punkt nicht auf dem Bild liegt
+    ///   (schwarzer Rand, unscharfer Hintergrund, unter der Seitenleiste).
+    ///
+    /// Was hilft: `displayLayer` hat seine `bounds` im UNGEDREHTEN Videoformat (Hochformat, so wie ReplayKit
+    /// liefert) und wird nur per Transform gedreht und gezoomt (siehe layoutSubviews). Der Zuschnitt der Raender
+    /// ist waehrend des Weiterleitens aus (MirrorHub.requestedSettings), das Video zeigt also das ganze iPhone.
+    func phonePoint(forCarPoint carPoint: CGPoint) -> CGPoint? {
+        // Nur was man sieht: Rand, Streifen unter der Seitenleiste und weggezoomte Teile zaehlen nicht
+        // (strikt statt auf den Rand klemmen – ein Tipp in den Rand loest am iPhone nichts aus).
+        guard videoSize.width > 0, videoSize.height > 0, foregroundHost.frame.contains(carPoint) else { return nil }
+        // Drehung, Zoom und Verschiebung stecken im Transform des Layers – convert rechnet sie heraus.
+        let local = displayLayer.convert(carPoint, from: layer)
+        let size = displayLayer.bounds.size
+        guard size.width > 0, size.height > 0 else { return nil }
+        let point = CGPoint(x: local.x / size.width, y: local.y / size.height)
+        guard (0...1).contains(point.x), (0...1).contains(point.y) else { return nil }
+        return point
+    }
+
     private func place(_ layer: CALayer, size: CGSize, swapsSides: Bool, at position: CGPoint) {
         layer.bounds = CGRect(origin: .zero, size: swapsSides ? CGSize(width: size.height, height: size.width) : size)
         layer.position = position

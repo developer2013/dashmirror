@@ -8,6 +8,9 @@
 	<!-- Fahrsperre: nur Geschwindigkeit/Bewegung, nichts wird gespeichert oder gesendet -->
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Only to tell whether the car is moving – then the picture in the car is hidden. Nothing is stored or sent.</string>
+	<!-- Experiment "Touch im Auto": Verbindung ueber LocalDevVPN (10.7.0.1) zum eigenen iPhone -->
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Only for the experimental “Touch in the car”: DashMirror talks to this iPhone’s own developer services through LocalDevVPN to pass taps from the car screen on to the iPhone.</string>
 	<!-- Sofort-Wiederholung: Clips nur hinzufuegen, nichts lesen -->
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Saves instant-replay clips of your game to Photos.</string>

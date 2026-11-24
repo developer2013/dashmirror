@@ -10,3 +10,6 @@ build/
 # Logs and system files
 *.log
 .DS_Store
+
+# TouchBridge (Rust) – Build-Ergebnisse
+TouchBridge/target/

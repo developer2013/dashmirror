@@ -154,7 +154,9 @@ final class MirrorHub {
         var settings = MirrorSettings.standard
         settings.frameRate = frameRate
         settings.bitrate = bitrateMbps * 1_000_000
-        settings.autoCrop = autoCrop
+        // Touch im Auto (Experiment): Die App erfaehrt nicht, wie viel die Erweiterung abschneidet – mit Zuschnitt
+        // laegen die weitergeleiteten Tipps daneben. Solange weitergeleitet wird, deshalb das ganze iPhone-Bild.
+        settings.autoCrop = autoCrop && !TouchForwarder.shared.enabled
         if carPixelSize.width > 0, carPixelSize.height > 0 {
             settings.maxLongSide = min(settings.maxLongSide, Int(max(carPixelSize.width, carPixelSize.height)))
             settings.maxShortSide = min(settings.maxShortSide, Int(min(carPixelSize.width, carPixelSize.height)))
@@ -306,6 +308,11 @@ final class MirrorHub {
         stored.bitrate = bitrateMbps * 1_000_000
         stored.autoCrop = autoCrop
         stored.save()
+        sendConfig()
+    }
+
+    /// Touch im Auto ein/aus: Der Zuschnitt der Raender haengt daran (requestedSettings) – neu an die Quelle.
+    func touchForwardingChanged() {
         sendConfig()
     }
 

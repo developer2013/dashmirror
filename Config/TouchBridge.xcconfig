@@ -1,0 +1,8 @@
+// Experiment "Touch im Auto" (Branch touch-prototype).
+// Nur einbinden, wenn scripts/build-touchbridge.sh gelaufen ist – in Config/Local.xcconfig:
+//   #include? "TouchBridge.xcconfig"
+// Ohne diese Datei (und immer im Simulator) baut DashMirror einen leeren Platzhalter: TouchForwarder.isAvailable == false.
+
+SWIFT_INCLUDE_PATHS[sdk=iphoneos*] = $(inherited) $(SRCROOT)/TouchBridge/include
+LIBRARY_SEARCH_PATHS[sdk=iphoneos*] = $(inherited) $(SRCROOT)/TouchBridge/build
+SWIFT_ACTIVE_COMPILATION_CONDITIONS[sdk=iphoneos*] = $(inherited) TOUCHBRIDGE

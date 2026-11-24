@@ -18,6 +18,9 @@ final class CarMirrorViewController: UIViewController {
     private let hub = MirrorHub.shared
     private let videoView = MirrorVideoView()
     private let nightShade = UIView()
+    /// Experiment: Finger ans iPhone weitergeben (TouchForwarder). Nur aktiv, wenn bereit und das Bild sichtbar ist.
+    private let touchLayer = TouchForwardView()
+    private var forwardingShown = false
     private let message = UIStackView()
     private let messageIcon = UIImageView()
     private let messageTitle = UILabel()
@@ -70,6 +73,25 @@ final class CarMirrorViewController: UIViewController {
         nightShade.isUserInteractionEnabled = false
         nightShade.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(nightShade)
+
+        // Touch ans iPhone (Experiment): ueber Bild und Nachtschicht, unter Leiste und Meldungen. Standard: aus.
+        touchLayer.translatesAutoresizingMaskIntoConstraints = false
+        touchLayer.isHidden = true
+        touchLayer.isUserInteractionEnabled = false
+        touchLayer.mapToPhone = { [weak self] point in
+            guard let self else { return nil }
+            return self.videoView.phonePoint(forCarPoint: self.touchLayer.convert(point, to: self.videoView))
+        }
+        touchLayer.onTouch = { contact, point in
+            TouchForwarder.shared.send(contact: contact, at: point)
+        }
+        view.addSubview(touchLayer)
+        NSLayoutConstraint.activate([
+            touchLayer.topAnchor.constraint(equalTo: view.topAnchor),
+            touchLayer.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            touchLayer.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            touchLayer.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+        ])
 
         for label in [hud, toast] {
             label.font = .monospacedDigitSystemFont(ofSize: 15, weight: .semibold)
@@ -264,6 +286,19 @@ final class CarMirrorViewController: UIViewController {
             message.isHidden = true
         }
         if !videoVisible { controls.isHidden = true }
+
+        // Touch ans iPhone: nur mit sichtbarem Bild (Fahrsperre!) und bereiter Verbindung. Lesen = beobachten.
+        let forwarding = TouchForwarder.shared.isActive && visible && streaming
+        if forwarding != forwardingShown {
+            forwardingShown = forwarding
+            if !forwarding { touchLayer.liftAll() }
+            touchLayer.isHidden = !forwarding
+            touchLayer.isUserInteractionEnabled = forwarding
+            if forwarding { hideControls() }
+            showToast(forwarding ? String(localized: "Touch goes to the iPhone", bundle: .ui)
+                                 : String(localized: "Touch back to DashMirror", bundle: .ui), seconds: 2)
+            MirrorLog.write("Autodisplay: Touch ans iPhone \(forwarding ? "an" : "aus")")
+        }
 
         // Nachtmodus weich ein- und ausblenden (der Lichtsensor schaltet z. B. im Tunnel schnell um).
         let shade = hub.nightDimActive ? CGFloat(hub.nightStrength) : 0
@@ -460,6 +495,8 @@ extension CarMirrorViewController: UIGestureRecognizerDelegate {
 
     /// Beruehrungen auf den Knoepfen der Leiste gehoeren den Knoepfen, nicht den Gesten.
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        // Touch geht ans iPhone: DashMirrors eigene Gesten ruhen (sonst blendete jeder Tipp die Leiste ein).
+        if forwardingShown { return false }
         var view = touch.view
         while let current = view {
             if current is UIControl { return false }

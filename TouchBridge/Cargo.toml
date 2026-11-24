@@ -1,0 +1,35 @@
+# TouchBridge – leitet Beruehrungen vom Autodisplay ans eigene iPhone weiter.
+#
+# Experiment (Branch touch-prototype). Spricht ueber LocalDevVPN (10.7.0.1) mit den
+# Entwickler-Diensten des eigenen iPhones: Remote-Pairing-Tunnel -> RSD -> displayservice
+# (Bildstrom als Freigabe fuer Beruehrungen) -> hid.universalhidservice.
+# Gebaut als statische Bibliothek fuer aarch64-apple-ios: scripts/build-touchbridge.sh
+
+[package]
+name = "touchbridge"
+version = "0.1.0"
+edition = "2024"
+publish = false
+license = "MIT"
+
+[lib]
+crate-type = ["staticlib"]
+
+[dependencies]
+# Fester Stand, gelesen und getestet am 24.11.2026 (idevice 0.1.68).
+idevice = { git = "https://github.com/jkcoxson/idevice", rev = "c8fff6d7fb2690eaeb591ce510754effa7b1e19b", default-features = false, features = [
+  "ring",
+  "remote_pairing",
+  "rsd",
+  "core_device",
+  "display_stream",
+  "tunnel_tcp_stack",
+  "tcp",
+] }
+tokio = { version = "1", features = ["rt-multi-thread", "net", "time", "sync", "macros"] }
+uuid = { version = "1", features = ["v4"] }
+
+[profile.release]
+lto = true
+codegen-units = 1
+panic = "abort"

@@ -1,6 +1,22 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "NSLocalNetworkUsageDescription" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Only for the experimental “Touch in the car”: DashMirror talks to this iPhone’s own developer services through LocalDevVPN to pass taps from the car screen on to the iPhone."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nur für das Experiment „Touch im Auto“: DashMirror spricht über LocalDevVPN mit den Entwicklerdiensten dieses iPhones, um Tipps vom Autodisplay ans iPhone weiterzugeben."
+          }
+        }
+      }
+    },
     "NSLocationWhenInUseUsageDescription" : {
       "localizations" : {
         "en" : {

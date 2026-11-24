@@ -1,0 +1,5 @@
+module TouchBridge {
+    header "touchbridge.h"
+    link "touchbridge"
+    export *
+}

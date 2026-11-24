@@ -114,6 +114,8 @@ struct ContentView: View {
                     Text("While the picture runs in the car and another app is in front (a video, a game), DashMirror turns the iPhone brightness down to 2 %. The picture in the car stays bright. Opening DashMirror or ending the mirroring brings the brightness back.")
                 }
 
+                TouchSection(forwarder: TouchForwarder.shared)
+
                 ReplaySection(replay: hub.replay, sourceConnected: hub.sourceConnected)
 
                 DrivingSection(monitor: hub.driving)
@@ -303,6 +305,38 @@ private struct ReplaySection: View {
             Text("Instant replay")
         } footer: {
             Text("Saves what just happened as a video, without sound. In the car: tap › “Save clip”, or press and hold. Clips go to Photos; until access is allowed they wait in the Files app (On My iPhone › DashMirror › Clips).")
+        }
+    }
+}
+
+/// Experiment "Touch im Auto" (TouchForwarder). Standard aus; ohne gebaute TouchBridge nur ein Hinweis.
+private struct TouchSection: View {
+    @Bindable var forwarder: TouchForwarder
+    @Environment(\.locale) private var locale
+
+    var body: some View {
+        let _ = locale
+        Section {
+            Toggle("Forward touch to the iPhone", isOn: $forwarder.enabled)
+                .disabled(!TouchForwarder.isAvailable)
+            if forwarder.enabled {
+                LabeledContent("Status") {
+                    switch forwarder.phase {
+                    case .ready: Text("ready").foregroundStyle(.green)
+                    case .connecting: Text("connecting").foregroundStyle(.orange)
+                    case .failed: Text("error").foregroundStyle(.red)
+                    case .off: Text("off")
+                    }
+                }
+                if !forwarder.status.isEmpty {
+                    Text(forwarder.status).font(.footnote).foregroundStyle(.secondary)
+                }
+                Button("Reconnect") { forwarder.reconnect() }
+            }
+        } header: {
+            Text("Touch in the car (experiment)")
+        } footer: {
+            Text("Taps on the car screen control the app in front on the iPhone. Needs LocalDevVPN, Developer Mode, a pairing file in DashMirror’s documents and Wi-Fi (or mobile data off). While on, black borders are not cut off and DashMirror’s own car gestures pause.")
         }
     }
 }

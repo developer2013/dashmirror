@@ -18,6 +18,7 @@ struct DashMirrorApp: App {
                         + "iOS \(UIDevice.current.systemVersion) ===")
         MirrorHub.shared.start()
         PhoneDimmer.shared.start()
+        TouchForwarder.shared.resume()
     }
 
     @State private var language = LanguageStore.shared
