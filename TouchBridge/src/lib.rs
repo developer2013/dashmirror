@@ -1,7 +1,10 @@
 // TouchBridge – Beruehrungen vom Autodisplay an das eigene iPhone weitergeben.
 //
-// Ablauf (nachgebaut aus jkcoxson/idevice, MIT: ffi/src/tunnel_provider.rs `finish_tunnel` und
-// tools/src/coredevice_stream.rs `start_screen_media_stream`, tools/src/hid.rs `with_touch`):
+// Portions adapted from jkcoxson/idevice (https://github.com/jkcoxson/idevice),
+// Copyright 2026 Jackson Coxson, MIT License: ffi/src/tunnel_provider.rs `finish_tunnel`,
+// tools/src/coredevice_stream.rs `start_screen_media_stream`, tools/src/hid.rs `with_touch`.
+//
+// Ablauf:
 //
 //   1. TCP zu 10.7.0.1:49152 – LocalDevVPN leitet das an das iPhone selbst zurueck.
 //   2. Remote Pairing mit der Kopplungsdatei (pair-verify, kein PIN) -> TLS-PSK-Tunnel.
@@ -12,6 +15,8 @@
 //
 // Alles laeuft auf EINEM eigenen Thread mit einer tokio-Laufzeit; die C-Funktionen unten
 // kehren sofort zurueck und blockieren den Hauptthread von DashMirror nie.
+// Meldungen: Der Schritt (TB_STEP_*) wird in der App uebersetzt, die Details bleiben Englisch
+// (technisch, wie Systemfehler) – so steht nie Deutsch in der englischen Oberflaeche.
 // Gemessen vom Mac aus am 24.11.2026 (iPhone 16 Pro, iOS 27.0.1): 5/5 Tipps kamen an,
 // auch waehrend der ReplayKit-Uebertragung.
 
@@ -42,7 +47,19 @@ pub const TB_CONNECTING: i32 = 1;
 pub const TB_READY: i32 = 2;
 pub const TB_FAILED: i32 = 3;
 
+// Schritte – muessen zu include/touchbridge.h passen.
+pub const TB_STEP_NONE: i32 = 0;
+pub const TB_STEP_PAIRING_FILE: i32 = 1;
+pub const TB_STEP_CONNECT: i32 = 2;
+pub const TB_STEP_VERIFY: i32 = 3;
+pub const TB_STEP_TUNNEL: i32 = 4;
+pub const TB_STEP_SERVICES: i32 = 5;
+pub const TB_STEP_SCREEN_STREAM: i32 = 6;
+pub const TB_STEP_TOUCH_SERVICE: i32 = 7;
+pub const TB_STEP_RUNNING: i32 = 8;
+
 static STATE: AtomicI32 = AtomicI32::new(TB_IDLE);
+static STEP: AtomicI32 = AtomicI32::new(TB_STEP_NONE);
 static TOUCHES_SENT: AtomicU64 = AtomicU64::new(0);
 static RTP_BYTES: AtomicU64 = AtomicU64::new(0);
 static STATUS: Mutex<String> = Mutex::new(String::new());
@@ -64,15 +81,19 @@ fn set_status(text: impl Into<String>) {
     }
 }
 
+/// Ein Netzwerkschritt mit Zeitlimit. `code` sagt der App, WO es haengt (uebersetzt dort),
+/// `what` ist die englische Detailangabe.
 async fn step<T, E: std::fmt::Debug>(
+    code: i32,
     what: &str,
     fut: impl std::future::Future<Output = Result<T, E>>,
 ) -> Result<T, String> {
-    set_status(format!("{what} …"));
+    STEP.store(code, Ordering::SeqCst);
+    set_status(what);
     match tokio::time::timeout(STEP_TIMEOUT, fut).await {
         Ok(Ok(v)) => Ok(v),
         Ok(Err(e)) => Err(format!("{what}: {e:?}")),
-        Err(_) => Err(format!("{what}: Zeitueberschreitung")),
+        Err(_) => Err(format!("{what}: timed out")),
     }
 }
 
@@ -82,20 +103,21 @@ async fn open_tunnel(
     pairing_path: &str,
     addr: SocketAddr,
 ) -> Result<(AdapterHandle, RsdHandshake), String> {
-    let mut pairing = step("Kopplungsdatei lesen", RpPairingFile::read_from_file(pairing_path)).await?;
+    let mut pairing = step(TB_STEP_PAIRING_FILE, "read pairing file", RpPairingFile::read_from_file(pairing_path)).await?;
 
-    let stream = step("Verbinden mit LocalDevVPN", tokio::net::TcpStream::connect(addr)).await?;
+    let stream = step(TB_STEP_CONNECT, "connect through the loopback VPN", tokio::net::TcpStream::connect(addr)).await?;
     let mut rpc = RemotePairingClient::new(RpPairingSocket::new(stream), "DashMirror");
     // Nur pair-verify: Ein PIN wuerde bedeuten, dass die Kopplungsdatei nicht (mehr) passt.
-    step("Kopplung pruefen", rpc.connect(&mut pairing, || async { String::new() })).await?;
+    step(TB_STEP_VERIFY, "verify pairing", rpc.connect(&mut pairing, || async { String::new() })).await?;
 
-    let tunnel_port = step("Tunnel anfordern", rpc.create_tcp_listener()).await?;
+    let tunnel_port = step(TB_STEP_TUNNEL, "request tunnel", rpc.create_tcp_listener()).await?;
     let mut tunnel_addr = addr;
     tunnel_addr.set_port(tunnel_port);
     let tunnel_stream =
-        step("Tunnel verbinden", tokio::net::TcpStream::connect(tunnel_addr)).await?;
+        step(TB_STEP_TUNNEL, "connect tunnel", tokio::net::TcpStream::connect(tunnel_addr)).await?;
     let tunnel = step(
-        "Tunnel verschluesseln",
+        TB_STEP_TUNNEL,
+        "encrypt tunnel",
         connect_tls_psk_tunnel_native(tunnel_stream, rpc.encryption_key()),
     )
     .await?;
@@ -109,8 +131,8 @@ async fn open_tunnel(
     adapter.set_mss(mtu.min(8192) - 60);
     let mut adapter = adapter.to_async_handle();
 
-    let rsd_stream = step("Diensteverzeichnis", adapter.connect(rsd_port)).await?;
-    let handshake = step("Diensteverzeichnis lesen", RsdHandshake::new(rsd_stream)).await?;
+    let rsd_stream = step(TB_STEP_SERVICES, "connect service directory", adapter.connect(rsd_port)).await?;
+    let handshake = step(TB_STEP_SERVICES, "read service directory", RsdHandshake::new(rsd_stream)).await?;
     Ok((adapter, handshake))
 }
 
@@ -119,12 +141,13 @@ async fn run(pairing_path: String, addr: SocketAddr, mut rx: mpsc::UnboundedRece
 
     // --- Bildstrom als Freigabe (Audio zuerst, dann Video auf derselben Sitzung – wie Device Hub)
     let mut display = step(
-        "Bildschirmdienst",
+        TB_STEP_SCREEN_STREAM,
+        "connect display service",
         DisplayServiceClient::connect_rsd(&mut adapter, &mut handshake),
     )
     .await?;
-    let audio_udp = step("UDP Ton", adapter.bind_udp(0)).await?;
-    let video_udp = step("UDP Bild", adapter.bind_udp(0)).await?;
+    let audio_udp = step(TB_STEP_SCREEN_STREAM, "bind audio port", adapter.bind_udp(0)).await?;
+    let video_udp = step(TB_STEP_SCREEN_STREAM, "bind video port", adapter.bind_udp(0)).await?;
     let receiver_ip = adapter.host_ip().to_string();
     let sender_ip = adapter.peer_ip().to_string();
     let call_info = CallInfoBlob {
@@ -140,7 +163,7 @@ async fn run(pairing_path: String, addr: SocketAddr, mut rx: mpsc::UnboundedRece
 
     let audio_call_id = uuid::Uuid::new_v4().to_string().to_uppercase();
     let audio_offer =
-        build_screen_audio_offer(&audio_call_id, &call_info).map_err(|e| format!("Ton-Angebot: {e:?}"))?;
+        build_screen_audio_offer(&audio_call_id, &call_info).map_err(|e| format!("build audio offer: {e:?}"))?;
     let audio_params = build_start_audio_parameters(
         &receiver_ip,
         audio_udp.local_port(),
@@ -150,12 +173,12 @@ async fn run(pairing_path: String, addr: SocketAddr, mut rx: mpsc::UnboundedRece
         CLIENT_SUPPORTED_FEATURES,
         session_id,
     );
-    step("Tonstrom starten", display.start_media_stream(audio_params)).await?;
+    step(TB_STEP_SCREEN_STREAM, "start audio stream", display.start_media_stream(audio_params)).await?;
 
     let video_call_id = uuid::Uuid::new_v4().to_string().to_uppercase();
     let ssrc = uuid::Uuid::new_v4().as_u128() as u32;
     let video_offer = build_screen_video_offer(&video_call_id, &call_info, ssrc)
-        .map_err(|e| format!("Bild-Angebot: {e:?}"))?;
+        .map_err(|e| format!("build video offer: {e:?}"))?;
     let video_params = build_start_video_parameters(
         &receiver_ip,
         video_udp.local_port(),
@@ -166,18 +189,20 @@ async fn run(pairing_path: String, addr: SocketAddr, mut rx: mpsc::UnboundedRece
         1,
         session_id,
     );
-    step("Bildstrom starten", display.start_media_stream(video_params)).await?;
+    step(TB_STEP_SCREEN_STREAM, "start video stream", display.start_media_stream(video_params)).await?;
 
     // backboardd braucht einen Moment, bis die HID-Flaechen als "builtIn" gelten.
     tokio::time::sleep(Duration::from_millis(300)).await;
     let mut hid = step(
-        "Beruehrungsdienst",
+        TB_STEP_TOUCH_SERVICE,
+        "connect touch service",
         UniversalHidServiceClient::connect_rsd(&mut adapter, &mut handshake),
     )
     .await?;
 
+    STEP.store(TB_STEP_RUNNING, Ordering::SeqCst);
     STATE.store(TB_READY, Ordering::SeqCst);
-    set_status("bereit");
+    set_status("ready");
 
     // Hauptschleife: RTP wegwerfen (sonst puffert jktcp unbegrenzt), Befehle ausfuehren.
     let result = loop {
@@ -187,7 +212,7 @@ async fn run(pairing_path: String, addr: SocketAddr, mut rx: mpsc::UnboundedRece
                 Some(Command::Touch { contact, x, y }) => {
                     let state = if contact { TOUCHSCREEN_STATE_CONTACT } else { TOUCHSCREEN_STATE_RELEASE };
                     if let Err(e) = hid.send_touchscreen(state, x, y, None).await {
-                        break Err(format!("Beruehrung senden: {e:?}"));
+                        break Err(format!("send touch: {e:?}"));
                     }
                     TOUCHES_SENT.fetch_add(1, Ordering::Relaxed);
                 }
@@ -195,11 +220,11 @@ async fn run(pairing_path: String, addr: SocketAddr, mut rx: mpsc::UnboundedRece
             },
             pkt = video_udp.recv() => match pkt {
                 Ok(d) => { RTP_BYTES.fetch_add(d.data.len() as u64, Ordering::Relaxed); }
-                Err(e) => break Err(format!("Bildstrom abgerissen: {e}")),
+                Err(e) => break Err(format!("screen stream lost: {e}")),
             },
             pkt = audio_udp.recv() => match pkt {
                 Ok(d) => { RTP_BYTES.fetch_add(d.data.len() as u64, Ordering::Relaxed); }
-                Err(e) => break Err(format!("Tonstrom abgerissen: {e}")),
+                Err(e) => break Err(format!("audio stream lost: {e}")),
             },
         }
     };
@@ -242,21 +267,22 @@ pub unsafe extern "C" fn touchbridge_start(pairing_path: *const c_char, host: *c
     STATE.store(TB_CONNECTING, Ordering::SeqCst);
     TOUCHES_SENT.store(0, Ordering::Relaxed);
     RTP_BYTES.store(0, Ordering::Relaxed);
-    set_status("starte …");
+    STEP.store(TB_STEP_NONE, Ordering::SeqCst);
+    set_status("starting");
 
     std::thread::Builder::new()
         .name("TouchBridge".into())
         .spawn(move || {
             let outcome = match tokio::runtime::Builder::new_current_thread().enable_all().build() {
                 Ok(rt) => rt.block_on(run(path, addr, rx)),
-                Err(e) => Err(format!("tokio: {e}")),
+                Err(e) => Err(format!("tokio runtime: {e}")),
             };
             if let Ok(mut s) = SENDER.lock() {
                 *s = None;
             }
             match outcome {
                 Ok(()) => {
-                    set_status("gestoppt");
+                    set_status("stopped");
                     STATE.store(TB_IDLE, Ordering::SeqCst);
                 }
                 Err(e) => {
@@ -268,7 +294,7 @@ pub unsafe extern "C" fn touchbridge_start(pairing_path: *const c_char, host: *c
         .map(|_| 0)
         .unwrap_or_else(|_| {
             STATE.store(TB_FAILED, Ordering::SeqCst);
-            set_status("Thread liess sich nicht starten");
+            set_status("could not start thread");
             -3
         })
 }
@@ -298,6 +324,12 @@ pub extern "C" fn touchbridge_stop() {
 #[unsafe(no_mangle)]
 pub extern "C" fn touchbridge_state() -> i32 {
     STATE.load(Ordering::SeqCst)
+}
+
+/// Woran die Verbindung gerade arbeitet bzw. gescheitert ist (TB_STEP_*), fuer eine uebersetzte Anzeige.
+#[unsafe(no_mangle)]
+pub extern "C" fn touchbridge_step() -> i32 {
+    STEP.load(Ordering::SeqCst)
 }
 
 #[unsafe(no_mangle)]

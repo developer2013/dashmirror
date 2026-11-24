@@ -10,6 +10,17 @@
 #define TB_READY 2
 #define TB_FAILED 3
 
+// Woran die Verbindung arbeitet bzw. gescheitert ist (touchbridge_step) – die App uebersetzt das.
+#define TB_STEP_NONE 0
+#define TB_STEP_PAIRING_FILE 1
+#define TB_STEP_CONNECT 2
+#define TB_STEP_VERIFY 3
+#define TB_STEP_TUNNEL 4
+#define TB_STEP_SERVICES 5
+#define TB_STEP_SCREEN_STREAM 6
+#define TB_STEP_TOUCH_SERVICE 7
+#define TB_STEP_RUNNING 8
+
 /// Startet die Verbindung im Hintergrund. 0 = gestartet, -1 = ungueltige Argumente, -2 = laeuft schon.
 int32_t touchbridge_start(const char *pairing_path, const char *host, uint16_t port);
 
@@ -23,10 +34,14 @@ void touchbridge_stop(void);
 /// TB_IDLE, TB_CONNECTING, TB_READY oder TB_FAILED.
 int32_t touchbridge_state(void);
 
+/// TB_STEP_*: aktueller bzw. gescheiterter Schritt.
+int32_t touchbridge_step(void);
+
 uint64_t touchbridge_touches_sent(void);
 
 /// Bytes des (verworfenen) Bildstroms, der als Freigabe fuer Beruehrungen laufen muss.
 uint64_t touchbridge_stream_bytes(void);
 
-/// Letzter Status/Fehler als UTF-8 nach buffer (nullterminiert). Rueckgabe: volle Laenge ohne Nullbyte.
+/// Letzte Detailmeldung (Englisch, technisch) als UTF-8 nach buffer (nullterminiert).
+/// Rueckgabe: volle Laenge ohne Nullbyte.
 size_t touchbridge_copy_status(char *buffer, size_t capacity);

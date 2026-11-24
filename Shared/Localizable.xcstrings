@@ -11,6 +11,16 @@
         }
       }
     },
+    "%@ failed." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ fehlgeschlagen."
+          }
+        }
+      }
+    },
     "(empty)" : {
       "localizations" : {
         "de" : {
@@ -211,6 +221,16 @@
         }
       }
     },
+    "Checking the pairing" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kopplung prüfen"
+          }
+        }
+      }
+    },
     "Clip saved (%d s) – allow Photos access on the iPhone to move it there" : {
       "localizations" : {
         "de" : {
@@ -241,12 +261,62 @@
         }
       }
     },
+    "Connecting" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verbinden"
+          }
+        }
+      }
+    },
+    "Connecting the touch service" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Berührungsdienst verbinden"
+          }
+        }
+      }
+    },
+    "Connecting through LocalDevVPN" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verbindung über LocalDevVPN"
+          }
+        }
+      }
+    },
     "Connecting…" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Verbinde …"
+          }
+        }
+      }
+    },
+    "Connection lost." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verbindung abgerissen."
+          }
+        }
+      }
+    },
+    "Create the pairing file again (scripts/make-pairing-file.sh)." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kopplungsdatei neu anlegen (scripts/make-pairing-file.sh)."
           }
         }
       }
@@ -544,6 +614,26 @@
         }
       }
     },
+    "Is LocalDevVPN on? Without Wi-Fi, mobile data must be off." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ist LocalDevVPN an? Ohne WLAN müssen die mobilen Daten aus sein."
+          }
+        }
+      }
+    },
+    "Is the Developer Disk Image mounted? After restarting the iPhone, mount it again from a Mac." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ist das Developer-Image aufgespielt? Nach einem Neustart des iPhones muss es vom Mac aus neu aufgespielt werden."
+          }
+        }
+      }
+    },
     "Keep the last 30 seconds" : {
       "localizations" : {
         "de" : {
@@ -704,6 +794,16 @@
         }
       }
     },
+    "Opening the tunnel" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tunnel öffnen"
+          }
+        }
+      }
+    },
     "Pair a Bluetooth controller with the iPhone." : {
       "localizations" : {
         "de" : {
@@ -714,12 +814,12 @@
         }
       }
     },
-    "Pairing file missing (Documents/pairingFile.plist)" : {
+    "Pairing file missing – see “Touch in the car” in the README." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Kopplungsdatei fehlt (Documents/pairingFile.plist)"
+            "value" : "Kopplungsdatei fehlt – siehe „Touch in the car“ im README."
           }
         }
       }
@@ -770,6 +870,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Qualität"
+          }
+        }
+      }
+    },
+    "Reading the iPhone’s services" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dienste des iPhones lesen"
+          }
+        }
+      }
+    },
+    "Reading the pairing file" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kopplungsdatei lesen"
           }
         }
       }
@@ -974,6 +1094,16 @@
         }
       }
     },
+    "Starting the screen stream" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bildstrom starten"
+          }
+        }
+      }
+    },
     "Stationary for" : {
       "localizations" : {
         "de" : {
@@ -1044,12 +1174,12 @@
         }
       }
     },
-    "Taps on the car screen control the app in front on the iPhone. Needs LocalDevVPN, Developer Mode, a pairing file in DashMirror’s documents and Wi-Fi (or mobile data off). While on, black borders are not cut off and DashMirror’s own car gestures pause." : {
+    "Taps on the car screen control the app in front on the iPhone. Needs LocalDevVPN, Developer Mode, a pairing file and Wi-Fi (or mobile data off) – setup in the README under “Touch in the car”. While on, black borders are not cut off and DashMirror’s own car gestures pause. A lost connection is retried automatically." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Tipps auf dem Autodisplay steuern die App, die am iPhone vorn ist. Braucht LocalDevVPN, den Entwicklermodus, eine Kopplungsdatei in DashMirrors Dokumenten und WLAN (oder mobile Daten aus). Solange es an ist, werden schwarze Ränder nicht abgeschnitten und DashMirrors eigene Gesten im Auto ruhen."
+            "value" : "Tipps auf dem Autodisplay steuern die App, die am iPhone vorn ist. Braucht LocalDevVPN, den Entwicklermodus, eine Kopplungsdatei und WLAN (oder mobile Daten aus) – Einrichtung im README unter „Touch in the car“. Solange es an ist, werden schwarze Ränder nicht abgeschnitten und DashMirrors eigene Gesten im Auto ruhen. Eine abgerissene Verbindung wird automatisch neu aufgebaut."
           }
         }
       }

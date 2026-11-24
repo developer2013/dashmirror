@@ -17,6 +17,11 @@ as H.264 and sends it over a Unix domain socket in the App Group container to th
   `Shared/` belongs to **both** targets, `DashMirror/` only to the app, `MirrorBroadcast/` only to the extension.
 - `Config/` (Info.plists, entitlements, xcconfigs) deliberately lives outside the synchronized folders.
 - Xcode 26.3, iOS SDK 26.2, deployment target 26.2, Swift 5 language mode with Approachable Concurrency.
+- Optional "Touch in the car": Rust crate `TouchBridge/` (on jkcoxson/idevice, pinned rev in `Cargo.toml`) built by
+  `scripts/build-touchbridge.sh` into `TouchBridge/build/libtouchbridge.a`, linked for device builds only via
+  `Config/TouchBridge.xcconfig` (opt-in from `Local.xcconfig`, compilation condition `TOUCHBRIDGE`). Swift side:
+  `DashMirror/Touch/`. The build needs rustup with `aarch64-apple-ios`; a Homebrew `rustc` in PATH lacks that target,
+  which is why the script prefers Homebrew's keg-only rustup.
 
 ## Build and verify
 
@@ -37,6 +42,9 @@ xcodebuild -project DashMirror.xcodeproj -scheme DashMirror \
 - Real mirroring (ReplayKit) and CarPlay only on a device – the user measures there. Never call something
   "tested in the car" that only ran in the simulator.
 - Don't register anything in the developer portal yourself (`-allowProvisioningUpdates` etc.) – the user does that.
+- Touch in the car on a device: the log shows `Touch: connecting` → `Touch: ready` within ~1 s after launch when the
+  switch is on. Failure path without a car: launch with `-TouchForwardingPort 1` – expected `Remote-Pairing-Port per Bonjour: 49152`, then
+  `ready`. Build all three variants warning-free: simulator, device without `TouchBridge.xcconfig`, device with it.
 
 ## Fixed rules (don't change without asking)
 
@@ -71,6 +79,18 @@ xcodebuild -project DashMirror.xcodeproj -scheme DashMirror \
     `ClipWriter` wraps it with `AVAssetWriter` passthrough. Clips are video only (rule 6).
 11. **Heat protection only lowers** what the encoder gets, via `configure` (`ThermalPolicy.adjust` inside
     `MirrorHub.effectiveSettings`). The order of what is lowered is a design decision – ask before changing it.
+12. **Touch in the car stays opt-in and behind the driving lock.** `TouchForwarder.enabled` defaults to off; without
+    `Config/TouchBridge.xcconfig` (and always in the simulator) the `#else` stub must keep building, warning-free.
+    `TouchForwardView` is active only while the picture is visible (`refresh()` in `CarMirrorViewController`), so the
+    driving lock disables touch with the picture – never decouple the two. Touch lives in the app only; the extension
+    never links TouchBridge (rule 2).
+13. **The pairing file never enters the repo, a log or an issue.** It grants full developer access to the iPhone.
+    `scripts/make-pairing-file.sh` writes it only to a private temp folder; the app moves it from Documents (visible
+    in the Files app) to Application Support with file protection and backup exclusion. Don't log its contents or
+    path variants with keys, and don't copy it anywhere else.
+14. **TouchBridge reports steps, the app translates.** Rust status strings are English technical detail plus a
+    `TB_STEP_*` code; user-facing text is built in `TouchForwarder` from localized strings. Keep `touchbridge.h` and
+    `lib.rs` in sync, and rebuild with `scripts/build-touchbridge.sh` after changing Rust (the `.a` is git-ignored).
 
 ## Style
 

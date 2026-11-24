@@ -4,6 +4,9 @@ Mirror your whole iPhone screen into your own CarPlay window: any app, including
 controller. No jailbreak, no IPA injection, no extra hardware ([details](#no-hacks-no-extra-hardware)). A fail-closed
 driving lock hides the picture while the car is moving.
 
+New and experimental: [Touch in the car](#touch-in-the-car-experimental). Tap the car screen and the app in front on
+the iPhone reacts, as if you touched the iPhone. Off by default, with a setup of its own.
+
 > **Use only while parked.** Not affiliated with, endorsed by, or connected to Apple. CarPlay is a trademark of
 > Apple Inc. This is a hobby project, not an App Store app. See [Limitations](#limitations) and
 > [Use at your own risk](#use-at-your-own-risk).
@@ -14,6 +17,7 @@ driving lock hides the picture while the car is moving.
 |---|---|
 | Works | iPhone 16 Pro, iOS 27.0.1, in Apple's CarPlay Simulator and in a real BMW over a cable (23 Nov 2026): mirroring, rotation, picture formats, touches on the car screen. |
 | Not tested yet | Wireless CarPlay. Instant replay, blurred background, night mode and heat protection in a real car; so far they have only run in the simulator. iOS 27.2 and later: Apple cracked down on CarPlay video workarounds in 27.2 (App Store removals), and whether this approach is affected is unknown. |
+| Touch in the car (experimental) | Works in Apple's CarPlay Simulator and in the BMW over a cable (24 Nov 2026): taps and swipes on the car screen control the app in front on the iPhone, games included. Needs Wi-Fi, or mobile data switched off. See [Touch in the car](#touch-in-the-car-experimental). |
 | Driving lock | Locks at once above 7 km/h (GPS) and unlocks after 5 s of standing. Without precise GPS it stays locked. The rule lives in `DashMirror/Driving/DrivingPolicy.swift`; check it before use (see [Driving lock](#driving-lock)). |
 | UI language | English and German. Follows the iPhone language, or pick one under **Language** in the app. The switch is immediate, on the car screen too. |
 
@@ -25,6 +29,8 @@ driving lock hides the picture while the car is moving.
   bars with a blurred copy of the picture.
 - [Instant replay](#instant-replay): a long press on the car screen saves the last 30 seconds to Photos.
 - [Night mode](#night-mode), [a dark iPhone while mirroring](#dim-the-iphone) and [heat protection](#heat-protection).
+- [Touch in the car](#touch-in-the-car-experimental) (experimental, opt-in): one finger on the car screen controls the
+  iPhone.
 - Switches between English and German without a restart.
 
 ## No hacks, no extra hardware
@@ -35,13 +41,18 @@ DashMirror only uses what iOS offers every developer:
 - No modified apps. Nothing is injected into the apps you mirror; they run unchanged.
 - No extra devices. No CarPlay dongle, no Android box, no HDMI adapter, no Raspberry Pi. Just the iPhone and the
   car's normal CarPlay connection.
-- No private APIs. The screen capture is a regular ReplayKit broadcast that you start yourself, like a screen
-  recording. Encoding, transport and display use VideoToolbox, a Unix socket and AVFoundation.
+- No private APIs for the mirroring. The screen capture is a regular ReplayKit broadcast that you start yourself, like
+  a screen recording. Encoding, transport and display use VideoToolbox, a Unix socket and AVFoundation.
 - No DRM tricks. Protected video stays black.
 
 One part is not standard: the car screen is a plain UIKit window under CarPlay's window scene role, which Apple
 doesn't document. iOS only creates that window for apps with both CarPlay entitlements, and you request those from
 Apple yourself (see [Requirements](#requirements) and [Limitations](#limitations)).
+
+The optional [Touch in the car](#touch-in-the-car-experimental) goes further, and you should know how: it talks to
+the iPhone's own developer services, the ones Xcode uses, through a loopback VPN. No private framework is linked and
+nothing is jailbroken, but the protocol is undocumented, it needs Developer Mode and a pairing file that works like a
+key to your iPhone, and Apple can close it with any update. It is off unless you build and switch it on.
 
 ## How it works
 
@@ -63,9 +74,9 @@ CarPlay window (UIWindowScene under the role "UIWindowSceneSessionRoleCarPlay")
 The game's sound needs no extra path: iOS already plays it through CarPlay. The app never activates an audio
 session, so it doesn't interrupt that.
 
-Touch on the car screen does not reach the mirrored app. No public API lets one app inject touches into another, so
-you control the game with a controller on the iPhone. Taps on the car screen go to DashMirror itself (see
-[Usage](#usage)).
+By default, touch on the car screen does not reach the mirrored app. No public API lets one app inject touches into
+another, so you control the game with a controller on the iPhone, and taps on the car screen go to DashMirror itself
+(see [Usage](#usage)). The experimental [Touch in the car](#touch-in-the-car-experimental) changes that.
 
 The CarPlay window is a plain `UIWindowScene` under a scene role that UIKit exports but doesn't name in Swift.
 [rPlayAI/cafari-lite](https://github.com/rPlayAI/cafari-lite) found it. iOS only creates that scene for an app signed
@@ -112,6 +123,9 @@ On the car screen:
 | Long press | Save a clip of the last 30 s. |
 | Pinch | Zoom. |
 | Drag | Move the zoomed picture. |
+
+With [Touch in the car](#touch-in-the-car-experimental) switched on and connected, one finger goes to the iPhone
+instead and these gestures pause. Change picture format and zoom on the iPhone meanwhile.
 
 Whether a head unit delivers multi-touch depends on the car (Apple's CarPlay Simulator doesn't), so the iPhone has the
 same zoom as a slider (**Extra zoom**, on top of the picture format), plus a reset button. Frame rate (30/60) and quality (6/12/20 Mbit/s) are set on the iPhone and
@@ -188,6 +202,108 @@ to 8 Mbit/s, at *critical* to 67 %, 6 Mbit/s and 30 fps. That happens before iOS
 car screen shows a short note. The rule is one small function in `DashMirror/Mirror/ThermalPolicy.swift`. It keeps
 60 fps as long as possible, because smoothness usually matters more in games than sharpness on a small car display.
 
+## Touch in the car (experimental)
+
+Tap or swipe on the car screen, and the app in front on the iPhone reacts as if you touched the iPhone: open apps,
+scroll, play touch games, pause a video. One finger. Off by default; without the steps below DashMirror builds and
+behaves exactly as without it.
+
+**Use it only while parked.** The touch layer exists only while the picture is shown, so the
+[driving lock](#driving-lock) switches touch off together with the picture.
+
+### How it works
+
+```text
+Finger on the car screen (CarPlay window, DashMirror)
+   │ point → iPhone screen position: the picture's layer transform (rotation, zoom, move) undone
+   ▼
+TouchBridge (Rust static library on top of idevice, own thread)
+   │ TCP to 10.7.0.1 – LocalDevVPN routes this back into the same iPhone
+   │ Remote Pairing (with the pairing file) → encrypted tunnel → service directory (RSD)
+   │ displayservice: a screen stream must run, otherwise iOS drops the touches; its data is discarded
+   ▼
+hid.universalhidservice (from the Developer Disk Image): touchscreen reports, 0…65535 per axis
+   ▼
+iOS treats it as a real finger – in whatever app is in front
+```
+
+This is the service Xcode uses to operate an iPhone from the Mac. The iPhone simply talks to itself as if it were that
+Mac. While it runs, the iPhone shows its screen-sharing indicator.
+
+### What you need
+
+- Everything from [Requirements](#requirements), plus Developer Mode on the iPhone (Settings › Privacy & Security).
+- [rustup](https://rustup.rs) with the `aarch64-apple-ios` target, to build TouchBridge.
+- [pymobiledevice3](https://github.com/doronz88/pymobiledevice3) on the Mac, for the pairing file and the Developer
+  Disk Image.
+- [LocalDevVPN](https://apps.apple.com/app/localdevvpn/id6755608044) on the iPhone (free, App Store). iOS runs one VPN
+  at a time, so another VPN (Tailscale, WireGuard, …) is off while it is on.
+- **Wi-Fi connected, or mobile data off.** With mobile data on and no Wi-Fi the tunnel fails (`device socket io
+  failed`), also with CarPlay over a cable. In the car that means: a Wi-Fi network (car hotspot, wireless CarPlay
+  untested) or mobile data off while you use touch.
+
+### Setup
+
+1. Build TouchBridge and switch it on in your local config:
+
+   ```bash
+   brew install rustup        # or https://rustup.rs
+   /opt/homebrew/opt/rustup/bin/rustup toolchain install stable --profile minimal --target aarch64-apple-ios
+   scripts/build-touchbridge.sh
+   echo '#include? "TouchBridge.xcconfig"' >> Config/Local.xcconfig
+   ```
+
+   Build and run DashMirror on the iPhone. Simulator builds and builds without that line contain an empty stub.
+2. Connect the iPhone by cable, unlock it, and pair it with pymobiledevice3 once. This also mounts the Developer Disk
+   Image the touch service lives in:
+
+   ```bash
+   pip install pymobiledevice3
+   pymobiledevice3 mounter auto-mount
+   pymobiledevice3 developer core-device get-device-info
+   ```
+
+3. Put the pairing file into DashMirror:
+
+   ```bash
+   scripts/make-pairing-file.sh      # PMD3=/path/to/pymobiledevice3 if it is not in PATH
+   ```
+
+4. On the iPhone: install LocalDevVPN and connect it.
+5. In DashMirror on the iPhone: **Touch in the car (experiment) › Forward touch to the iPhone**. Allow
+   **Local Network** when iOS asks. The status turns **ready** after about a second.
+6. In the car: open DashMirror, start mirroring. The car screen shows *Touch goes to the iPhone*.
+
+After every restart of the iPhone, mount the Developer Disk Image again from a Mac
+(`pymobiledevice3 mounter auto-mount`). If the touch service is missing although the image is mounted, use
+`--replace` (seen once on 24 Nov 2026). A lost connection (app in the background, network change) is retried
+automatically: at once when the car window or the app comes back, otherwise after 3, 5, 10, 20, then every 30 s.
+
+### The pairing file is a key
+
+Whoever has it gets full developer access to your iPhone, also over the same Wi-Fi: install apps, read the screen,
+tap. `make-pairing-file.sh` builds it in a private temporary folder and deletes it after copying. DashMirror moves it
+at its next start out of Documents (which the Files app shows) into Application Support, with file protection and
+excluded from backups. Never commit it, attach it to an issue or send it to anyone.
+
+It is the Remote Pairing that pymobiledevice3 made for your Mac (listed as *Mac* under Settings › Privacy &
+Security › Developer Mode). To revoke it, remove that entry there; pymobiledevice3 pairs again the next time you use
+it, then run `make-pairing-file.sh` again.
+
+### Limits
+
+- One finger. Pinch and other multi-finger gestures are not passed on (the reports could carry five fingers;
+  CarPlay head units often deliver only one).
+- While touch is on, black borders are not cut off: the app can't know how much the extension cuts, and the taps
+  would land off target. DashMirror's own car gestures (control bar, zoom, clip) pause; use the iPhone for those.
+- Taps on the blurred background or under the CarPlay sidebar do nothing; only the visible picture counts.
+- The screen stream that unlocks touch costs a little: in the BMW 17–21 ms from screen to app with touch, 12–21 ms
+  without.
+- The Remote Pairing port is 49152; if that fails, DashMirror looks it up via Bonjour (launch argument
+  `-TouchForwardingPort N` forces one).
+- Apple can change or close any part of this path with an iOS update. On iOS 27.2 some people report the Remote
+  Pairing tunnel failing with other tools ([StikDebug #471](https://github.com/StikDebug/StikDebug/issues/471)).
+
 ## Driving lock
 
 Every second, `DrivingLockMonitor` collects the GPS speed, the motion coprocessor's automotive/stationary state with
@@ -249,6 +365,10 @@ With the iPhone on a cable, Apple's CarPlay Simulator (Additional Tools for Xcod
 | Simulator, instant replay | `-MirrorReplayTest 14`: a clip of 11.7 s (the buffer restarted when the border crop changed the format), 353 frames, 0.6 MB, written in 0.04 s. It plays upright as 1288×720 with the rotation in the track transform. |
 | Simulator, heat protection | `-MirrorThermalTest serious`: encoder settings go from 1920×1080 at 12 Mbit/s to 1440×810 at 8 Mbit/s, 60 fps kept. |
 | Simulator, blurred background | Second display layer next to the main one, no decoder errors. 0.2 frames/s were dropped for a moment while it waited for its first keyframe. |
+| Touch, from the Mac (24 Nov 2026) | `pymobiledevice3 … universal-hid-service tap` during a running DashMirror broadcast: 5 of 5 taps landed, 2.05–2.06 s apart in a 2 s rhythm. With the screen stream open but no taps, the mirroring dropped to 29–30 fps and 13–14 ms for about 20 s, then back to 30 fps and 8 ms. Nothing dropped, no back-pressure. |
+| Touch, CarPlay Simulator + Wi-Fi (24 Nov 2026) | Switch on → ready in 1.1 s. Clicks in the simulator window open apps on the iPhone. Mirroring 35–37 fps, 14–16 ms (8–9 ms without touch). |
+| Touch, BMW over a cable, mobile data off (24 Nov 2026) | Taps, swipes, a touch game and YouTube worked. Car window 639×241 pt, 1770×723 px picture area, 31–47 fps, 17–21 ms from screen to app, nothing dropped. With mobile data on and no Wi-Fi the tunnel failed, as in the simulator. |
+| Touch, wrong port (24 Nov 2026) | `-TouchForwardingPort 1`: connection refused → Bonjour found 49152 within 30 ms → ready 1 s later. |
 
 ReplayKit's orientation `.right` (6) needs a 90° counter-clockwise rotation, the opposite of the EXIF reading. The
 first version showed YouTube upside down in the BMW. Netflix stays black: ReplayKit doesn't capture DRM content, by
@@ -257,8 +377,9 @@ design.
 ReplayKit only delivers frames when the screen changes, so a static screen means few frames, not an error.
 
 Locking the iPhone ends the broadcast. In the measurement iOS finished it 7 s after CarPlay connected, when the phone
-was locked, and after unlocking it has to be started again. The game is suspended while locked anyway. Touch on the
-car screen can't drive other apps, so "phone locked, play by car touch" is not possible with mirroring.
+was locked, and after unlocking it has to be started again. The game is suspended while locked anyway. So even with
+[Touch in the car](#touch-in-the-car-experimental), the iPhone has to stay unlocked: "phone locked, play by car touch"
+is not possible with mirroring.
 
 ## Logs
 
@@ -282,6 +403,8 @@ xcrun devicectl device copy from --device DEVICE_ID --domain-type appDataContain
 - Capture, hand-over and the CarPlay video stream add latency. End-to-end latency hasn't been measured yet.
 - DRM-protected content (streaming apps) is black in ReplayKit captures.
 - Apple can change or remove the window scene role in any iOS release.
+- Touch in the car depends on undocumented developer services, Developer Mode, a mounted Developer Disk Image and a
+  loopback VPN, and needs Wi-Fi or mobile data off. See its [limits](#limits).
 
 ## Use at your own risk
 
@@ -311,6 +434,8 @@ anything else that comes from building, changing or using DashMirror.
   line is `Autodisplay: Auto meldet …`), does heat protection kick in on a warm day, how big is the control bar on the
   240 pt high screen.
 - iOS 27.2 and later.
+- Touch in the car with wireless CarPlay: the iPhone is on the head unit's Wi-Fi then, so the tunnel might work with
+  mobile data on. Mounting the Developer Disk Image on the iPhone itself, without a Mac, after a restart.
 
 ## Project layout
 
@@ -328,6 +453,9 @@ anything else that comes from building, changing or using DashMirror.
 | Car screen | `DashMirror/CarPlay/*` |
 | Driving lock | `DashMirror/Driving/*` |
 | Phone UI | `DashMirror/Phone/*` |
+| Touch in the car: switch, reconnect, car-screen layer, port lookup | `DashMirror/Touch/*`, `MirrorVideoView.phonePoint(forCarPoint:)` |
+| Touch in the car: tunnel, screen stream, touch reports (Rust) | `TouchBridge/` → `scripts/build-touchbridge.sh`, `Config/TouchBridge.xcconfig` |
+| Pairing file onto the iPhone | `scripts/make-pairing-file.sh` |
 | Signing config | `Config/Signing.xcconfig`, `Config/Local.xcconfig.example` |
 | App icon | `Design/AppIcon/mobile-casting.svg` (Nucleo, not MIT) → `scripts/make-icon.sh` (needs `brew install librsvg`) |
 
@@ -347,6 +475,13 @@ or not. The logs contain speed, but no location.
 
 - [rPlayAI/cafari-lite](https://github.com/rPlayAI/cafari-lite) (MIT) showed that a plain `UIWindowScene` under
   `UIWindowSceneSessionRoleCarPlay` works with the CarPlay video and audio entitlements. No code was copied.
+- [jkcoxson/idevice](https://github.com/jkcoxson/idevice) (MIT, © 2026 Jackson Coxson): TouchBridge is built on it;
+  the tunnel and screen-stream setup are adapted from its FFI and tools.
+- [StikDebug](https://github.com/StikDebug/StikDebug) showed that an iPhone can reach its own developer services
+  through a loopback VPN; DashMirror's Bonjour lookup follows its parameters. No code was copied (StikDebug is AGPL).
+- [pymobiledevice3](https://github.com/doronz88/pymobiledevice3) documents the touch reports and the screen-stream
+  requirement, and is used as a tool for pairing and the Developer Disk Image. No code was copied.
+- [LocalDevVPN](https://apps.apple.com/app/localdevvpn/id6755608044) provides the loopback VPN.
 - App icon: *mobile-casting* by [Nucleo](https://nucleoapp.com/).
 
 ## Author

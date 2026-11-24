@@ -336,7 +336,7 @@ private struct TouchSection: View {
         } header: {
             Text("Touch in the car (experiment)")
         } footer: {
-            Text("Taps on the car screen control the app in front on the iPhone. Needs LocalDevVPN, Developer Mode, a pairing file in DashMirror’s documents and Wi-Fi (or mobile data off). While on, black borders are not cut off and DashMirror’s own car gestures pause.")
+            Text("Taps on the car screen control the app in front on the iPhone. Needs LocalDevVPN, Developer Mode, a pairing file and Wi-Fi (or mobile data off) – setup in the README under “Touch in the car”. While on, black borders are not cut off and DashMirror’s own car gestures pause. A lost connection is retried automatically.")
         }
     }
 }
