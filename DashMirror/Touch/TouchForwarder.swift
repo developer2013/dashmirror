@@ -3,10 +3,11 @@
 //  DashMirror
 //
 //  Experiment "Touch im Auto": Beruehrungen auf dem Autodisplay steuern die App, die am iPhone vorn ist.
-//  Weg (gemessen am 24.11.2026, iPhone 16 Pro, iOS 27.0.1, CarPlay Simulator und BMW per Kabel):
+//  Weg (gemessen am 24.11.2026, iPhone 16 Pro, iOS 27.0.1, CarPlay Simulator per Kabel und BMW kabellos):
 //  - Ueber LocalDevVPN (10.7.0.1) spricht DashMirror mit den Entwickler-Diensten des EIGENEN iPhones – wie
 //    StikDebug. Geht mit WLAN oder bei ausgeschalteten mobilen Daten; mit mobilen Daten ohne WLAN scheitert der
-//    Tunnel ("device socket io failed"), auch mit CarPlay per Kabel.
+//    Tunnel ("device socket io failed"), auch mit CarPlay per Kabel (Simulator). Kabelloses CarPlay zaehlt als
+//    WLAN: Im BMW lief Touch mit mobilen Daten an (LTE in der CarPlay-Leiste).
 //  - Der Dienst hid.universalhidservice (Developer-Image) nimmt echte Touchscreen-Berichte an, aber nur solange
 //    ein Bildstrom des displayservice laeuft. Im BMW: Latenz Bildschirm -> Auto 17–21 ms (ohne Touch 12–21 ms).
 //  Die eigentliche Arbeit macht die Rust-Bibliothek TouchBridge (TouchBridge/src/lib.rs) auf eigenem Thread.

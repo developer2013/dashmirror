@@ -7,6 +7,8 @@ driving lock hides the picture while the car is moving.
 New and experimental: [Touch in the car](#touch-in-the-car-experimental). Tap the car screen and the app in front on
 the iPhone reacts, as if you touched the iPhone. Off by default, with a setup of its own.
 
+![A finger on the BMW's screen plays a game that runs on the iPhone](docs/touch-in-the-bmw.jpg)
+
 > **Use only while parked.** Not affiliated with, endorsed by, or connected to Apple. CarPlay is a trademark of
 > Apple Inc. This is a hobby project, not an App Store app. See [Limitations](#limitations) and
 > [Use at your own risk](#use-at-your-own-risk).
@@ -15,9 +17,9 @@ the iPhone reacts, as if you touched the iPhone. Off by default, with a setup of
 
 | Area | State |
 |---|---|
-| Works | iPhone 16 Pro, iOS 27.0.1, in Apple's CarPlay Simulator and in a real BMW over a cable (23 Nov 2026): mirroring, rotation, picture formats, touches on the car screen. |
-| Not tested yet | Wireless CarPlay. Instant replay, blurred background, night mode and heat protection in a real car; so far they have only run in the simulator. iOS 27.2 and later: Apple cracked down on CarPlay video workarounds in 27.2 (App Store removals), and whether this approach is affected is unknown. |
-| Touch in the car (experimental) | Works in Apple's CarPlay Simulator and in the BMW over a cable (24 Nov 2026): taps and swipes on the car screen control the app in front on the iPhone, games included. Needs Wi-Fi, or mobile data switched off. See [Touch in the car](#touch-in-the-car-experimental). |
+| Works | iPhone 16 Pro, iOS 27.0.1, in Apple's CarPlay Simulator and in a real BMW with wireless CarPlay (23 Nov 2026): mirroring, rotation, picture formats, touches on the car screen. |
+| Not tested yet | Wired CarPlay in a real car (only in Apple's CarPlay Simulator, which is wired). Instant replay, blurred background, night mode and heat protection in a real car; so far they have only run in the simulator. iOS 27.2 and later: Apple cracked down on CarPlay video workarounds in 27.2 (App Store removals), and whether this approach is affected is unknown. |
+| Touch in the car (experimental) | Works in Apple's CarPlay Simulator and in the BMW with wireless CarPlay (24 Nov 2026): taps and swipes on the car screen control the app in front on the iPhone, games included. Needs the iPhone on Wi-Fi, which wireless CarPlay already is; with wired CarPlay, mobile data off. See [Touch in the car](#touch-in-the-car-experimental). |
 | Driving lock | Locks at once above 7 km/h (GPS) and unlocks after 5 s of standing. Without precise GPS it stays locked. The rule lives in `DashMirror/Driving/DrivingPolicy.swift`; check it before use (see [Driving lock](#driving-lock)). |
 | UI language | English and German. Follows the iPhone language, or pick one under **Language** in the app. The switch is immediate, on the car screen too. |
 
@@ -238,9 +240,10 @@ Mac. While it runs, the iPhone shows its screen-sharing indicator.
   Disk Image.
 - [LocalDevVPN](https://apps.apple.com/app/localdevvpn/id6755608044) on the iPhone (free, App Store). iOS runs one VPN
   at a time, so another VPN (Tailscale, WireGuard, …) is off while it is on.
-- **Wi-Fi connected, or mobile data off.** With mobile data on and no Wi-Fi the tunnel fails (`device socket io
-  failed`), also with CarPlay over a cable. In the car that means: a Wi-Fi network (car hotspot, wireless CarPlay
-  untested) or mobile data off while you use touch.
+- **The iPhone on Wi-Fi, or mobile data off.** With mobile data on and no Wi-Fi the tunnel fails (`device socket io
+  failed`). Wireless CarPlay covers this: the iPhone is on the head unit's Wi-Fi, and in the BMW touch connected with
+  mobile data on. Wired CarPlay doesn't count as Wi-Fi (measured in Apple's CarPlay Simulator, which is wired), so
+  with a cable you need another Wi-Fi network or mobile data off.
 
 ### Setup
 
@@ -356,7 +359,7 @@ With the iPhone on a cable, Apple's CarPlay Simulator (Additional Tools for Xcod
 
 | Setup | Result |
 |---|---|
-| BMW, real car, iPhone 16 Pro over a cable (23 Nov 2026) | CarPlay window 642×240 pt @3x (1440×540 native), 49 pt sidebar → 1770×723 px video area (2.45:1). 30–57 fps, 12–21 ms from screen to app. |
+| BMW, real car, iPhone 16 Pro, wireless CarPlay (23 Nov 2026) | CarPlay window 642×240 pt @3x (1440×540 native), 49 pt sidebar → 1770×723 px video area (2.45:1). 30–57 fps, 12–21 ms from screen to app. |
 | BMW, second drive (23 Nov 2026) | All seven old formats compared in portrait and landscape. Landscape apps with zoom looked best, but Fill-level zoom (11.4 % cut) was too close, which led to the adjustable zoom. 11–16 ms from screen to app, 0–0.1 dropped/s. After dark the car reported night. Whether it switches to day still needs a test in daylight. The `-MirrorNoDrivingLock` launch ended after 55 min (no crash or jetsam report). The next normal launch was locked again, as intended. |
 | iPhone + CarPlay Simulator, real broadcast | Car window 425×255 pt @2x (800×480 native), 49 pt safe-area inset → 752×510 px video area; the encoder follows (346×752). Extension: 4 MB at start, 9–10 MB while encoding (limit 50 MB). 23 ms from screen to app including ReplayKit. |
 | iPhone 16 Pro, iOS 27.0.1, test pattern | Hardware low-latency encoder, 30 fps, 9 ms encoder → app. |
@@ -367,7 +370,8 @@ With the iPhone on a cable, Apple's CarPlay Simulator (Additional Tools for Xcod
 | Simulator, blurred background | Second display layer next to the main one, no decoder errors. 0.2 frames/s were dropped for a moment while it waited for its first keyframe. |
 | Touch, from the Mac (24 Nov 2026) | `pymobiledevice3 … universal-hid-service tap` during a running DashMirror broadcast: 5 of 5 taps landed, 2.05–2.06 s apart in a 2 s rhythm. With the screen stream open but no taps, the mirroring dropped to 29–30 fps and 13–14 ms for about 20 s, then back to 30 fps and 8 ms. Nothing dropped, no back-pressure. |
 | Touch, CarPlay Simulator + Wi-Fi (24 Nov 2026) | Switch on → ready in 1.1 s. Clicks in the simulator window open apps on the iPhone. Mirroring 35–37 fps, 14–16 ms (8–9 ms without touch). |
-| Touch, BMW over a cable, mobile data off (24 Nov 2026) | Taps, swipes, a touch game and YouTube worked. Car window 639×241 pt, 1770×723 px picture area, 31–47 fps, 17–21 ms from screen to app, nothing dropped. With mobile data on and no Wi-Fi the tunnel failed, as in the simulator. |
+| Touch, BMW with wireless CarPlay (24 Nov 2026) | Taps, swipes, a touch game and YouTube worked. Car window 639×241 pt, 1770×723 px picture area, 31–47 fps, 17–21 ms from screen to app, nothing dropped. Connected with mobile data off at first; later it reconnected and ran with mobile data on (LTE in the CarPlay status bar), because the iPhone is on the head unit's Wi-Fi. The first drop came from the app sitting in the background, which is why it now reconnects by itself. |
+| Touch, wired CarPlay Simulator, Wi-Fi off (24 Nov 2026) | Mobile data on: tunnel fails (`device socket io failed`). Mobile data off: connects. The USB link to the head unit doesn't count as Wi-Fi. |
 | Touch, wrong port (24 Nov 2026) | `-TouchForwardingPort 1`: connection refused → Bonjour found 49152 within 30 ms → ready 1 s later. |
 
 ReplayKit's orientation `.right` (6) needs a 90° counter-clockwise rotation, the opposite of the EXIF reading. The
@@ -429,13 +433,13 @@ anything else that comes from building, changing or using DashMirror.
 - Dim the iPhone: does the car picture stay bright at 2 % brightness, does iOS accept the restore while DashMirror is in
   the background (log line `iPhone-Helligkeit …`), and does auto-brightness raise the brightness again during a
   session?
-- Wireless CarPlay, longer sessions with a warm iPhone, switching between Maps and DashMirror.
+- Wired CarPlay in a real car, longer sessions with a warm iPhone, switching between Maps and DashMirror.
 - The new features in a real car: does the blur render on the head unit, does the BMW send a day/night signal (the log
   line is `Autodisplay: Auto meldet …`), does heat protection kick in on a warm day, how big is the control bar on the
   240 pt high screen.
 - iOS 27.2 and later.
-- Touch in the car with wireless CarPlay: the iPhone is on the head unit's Wi-Fi then, so the tunnel might work with
-  mobile data on. Mounting the Developer Disk Image on the iPhone itself, without a Mac, after a restart.
+- Touch in the car: other head units, wired CarPlay in a real car, longer sessions. Mounting the Developer Disk Image
+  on the iPhone itself, without a Mac, after a restart.
 
 ## Project layout
 
