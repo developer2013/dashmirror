@@ -7,7 +7,7 @@ driving lock hides the picture while the car is moving.
 New and experimental: [Touch in the car](#touch-in-the-car-experimental). Tap the car screen and the app in front on
 the iPhone reacts, as if you touched the iPhone. Off by default, with a setup of its own.
 
-![A finger on the BMW's screen plays a game that runs on the iPhone](docs/touch-in-the-bmw.jpg)
+![A finger on the BMW's screen plays a game that runs on the iPhone](docs/touch-in-the-bmw.gif)
 
 > **Use only while parked.** Not affiliated with, endorsed by, or connected to Apple. CarPlay is a trademark of
 > Apple Inc. This is a hobby project, not an App Store app. See [Limitations](#limitations) and
